@@ -1,0 +1,20 @@
+{
+  "name": "@my-website/env",
+  "version": "0.0.0",
+  "main": "index.ts",
+  "packageManager": "pnpm@10.28.0",
+  "private": true,
+  "type": "module",
+  "types": "index.ts",
+  "exports": {
+    ".": "./index.ts"
+  },
+  "prettier": "@my-website/prettier-config",
+  "dependencies": {
+    "@t3-oss/env-nextjs": "^0.13.10"
+  },
+  "devDependencies": {
+    "@my-website/eslint-config": "workspace:*",
+    "@my-website/typescript-config": "workspace:*"
+  }
+}

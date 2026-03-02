@@ -1,0 +1,6 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "@my-website/typescript-config/react-library.json",
+  "compilerOptions": { "noEmit": true },
+  "include": ["index.ts"]
+}

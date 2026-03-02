@@ -1,0 +1,13 @@
+{
+  "name": "@my-website/typescript-config",
+  "version": "1.0.0",
+  "license": "MIT",
+  "packageManager": "pnpm@10.28.0",
+  "private": true,
+  "exports": {
+    "./base.json": "./base.json",
+    "./nestjs.json": "./nestjs.json",
+    "./nextjs.json": "./nextjs.json",
+    "./react-library.json": "./react-library.json"
+  }
+}

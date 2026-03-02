@@ -1,0 +1,14 @@
+{
+  "name": "@my-website/prettier-config",
+  "version": "0.0.0",
+  "packageManager": "pnpm@10.28.0",
+  "private": true,
+  "type": "module",
+  "exports": "./index.js",
+  "files": [
+    "index.js"
+  ],
+  "peerDependencies": {
+    "prettier": "^3.0.0"
+  }
+}
