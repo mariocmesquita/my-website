@@ -1,10 +1,12 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { FirebaseModule } from './common/firebase/firebase.module';
+import { PrismaModule } from '@common/prisma/prisma.module';
+import { FirebaseModule } from '@common/firebase/firebase.module';
+import { ProfileModule } from '@/modules/profile/profile.module';
 
 @Module({
-  imports: [FirebaseModule],
+  imports: [PrismaModule, FirebaseModule, ProfileModule],
   controllers: [AppController],
   providers: [AppService],
 })

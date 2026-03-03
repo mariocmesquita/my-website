@@ -19,6 +19,7 @@ my-website/
 │   └── web/          # Frontend — Next.js
 ├── packages/
 │   ├── env/                  # @my-website/env — env validation (@t3-oss/env-nextjs)
+│   ├── schemas/              # @my-website/schemas — shared Zod schemas (frontend + backend)
 │   ├── typescript-config/    # Shared TypeScript configs
 │   ├── eslint-config/        # Shared ESLint configs
 │   └── prettier-config/      # Shared Prettier config
@@ -96,7 +97,7 @@ api/src/
 ### Prisma 7 Specifics
 
 - Generator name: `prisma-client` (not `client`)
-- Import the Prisma client with: `from '../../generated/prisma'` (not `@prisma/client`)
+- Import the Prisma client with: `from '../../generated/prisma/client'` (not `@prisma/client`)
 - Use `prisma migrate dev` for development and `prisma migrate deploy` for production.
 
 ### Database and Docker
@@ -124,9 +125,16 @@ api/src/
 web/src/
 ├── app/
 │   ├── api/auth/session/route.ts   # POST/DELETE session endpoints (iron-session)
+│   ├── (admin)/                    # Protected admin section
+│   │   ├── layout.tsx              # Admin layout (auth check)
+│   │   ├── dashboard/              # Admin dashboard
+│   │   ├── profile/                # Profile editor (form + review dialog)
+│   │   ├── career/
+│   │   ├── projects/
+│   │   └── posts/
+│   ├── (public)/                   # Public landing page
+│   │   └── page.tsx
 │   ├── auth/sign-in/               # Sign-in page
-│   ├── dashboard/                  # Protected route
-│   ├── proxy.ts                    # Route protection (replaces middleware.ts)
 │   └── providers.tsx               # QueryClientProvider + Toaster
 ├── components/
 │   ├── form/                       # FormField, FormButton, FormError
@@ -134,13 +142,17 @@ web/src/
 │   ├── sections/                   # AboutSection, CareerSection, ProjectsSection, PostsSection
 │   └── ui/                         # TechBadge, BackToTopButton, shadcn components
 ├── hooks/
-│   └── useZodForm.ts               # Generic form hook with Zod resolver
+│   ├── useZodForm.ts               # Generic form hook with Zod resolver
+│   └── useProfile.ts               # React Query hooks: useProfile(), useUpdateProfile()
 ├── http/
-│   └── auth.ts                     # Pure HTTP client functions (postSession, deleteSession)
-└── lib/
-    ├── firebase.ts                 # Firebase init + useAuth() hook
-    ├── session.ts                  # iron-session DAL (server-only)
-    └── utils.ts
+│   ├── auth.ts                     # Pure HTTP client functions (postSession, deleteSession)
+│   └── profile.ts                  # Pure HTTP client functions (getProfile, updateProfile)
+├── lib/
+│   ├── firebase.ts                 # Firebase init + useAuth() hook
+│   ├── session.ts                  # iron-session DAL (server-only)
+│   ├── profile.ts                  # getProfileData() — server-side fetch with cache
+│   └── utils.ts
+└── proxy.ts                        # Route protection (replaces middleware.ts)
 ```
 
 ### Frontend Conventions
@@ -150,7 +162,7 @@ web/src/
 - Requests to `apps/api` via React Query with proper cache settings (staleTime, gcTime).
 - Forms use react-hook-form with Zod validation via the `useZodForm` hook.
 - Validation errors, feedback messages, and UI text must be in **Brazilian Portuguese**.
-- Route protection via `proxy.ts` (not middleware.ts) — Node.js runtime.
+- Route protection via `src/proxy.ts` (not middleware.ts) — Node.js runtime.
 - Session DAL in `lib/session.ts` (server-only) — functions: `getSession()`, `setSession()`, `clearSession()`, `verifySession()`.
 - HTTP client functions in `http/` folder — pure functions, no side effects.
 
@@ -194,6 +206,25 @@ Decompose components proactively. Do not leave monolithic components in place wh
 
 ---
 
+## `packages/schemas` — Shared Zod Schemas
+
+- Package: `@my-website/schemas`
+- Shared validation schemas consumed by both `apps/api` and `apps/web` — eliminates duplication.
+- Import: `import { ProfileSchema, UpdateProfileSchema } from '@my-website/schemas'`
+
+### Exported Schemas
+
+- `SocialLinksSchema` — github, linkedin, instagram, youtube (all optional strings)
+- `ProfileSchema` — full profile shape (id, name, position, description, bio, email, socialLinks, createdAt, updatedAt)
+- `UpdateProfileSchema` — PATCH payload (name, position, description, bio, email, socialLinks — all required)
+
+### Convention
+
+- Add new schemas here whenever a resource is shared between frontend and backend.
+- Backend feature modules re-export from `@my-website/schemas` rather than defining their own.
+
+---
+
 ## Language
 
 All of the following must be in **Brazilian Portuguese**:
@@ -220,7 +251,7 @@ All of the following must be in **Brazilian Portuguese**:
 - `lib/firebase.ts` — Firebase init + `useAuth()` hook (`{ user, isLoading, getToken, signOut }`)
 - `lib/session.ts` — iron-session DAL (server-only): `getSession()`, `setSession(uid, email)`, `clearSession()`, `verifySession()`
 - `http/auth.ts` — pure functions: `postSession()`, `deleteSession()`
-- `app/proxy.ts` — protects `/dashboard`, redirects authenticated users away from `/auth/sign-in`
+- `src/proxy.ts` — protects `/dashboard`, `/profile`, `/career`, `/projects`, `/posts`; redirects authenticated users away from `/auth/sign-in`
 
 ### Backend (NestJS Guard)
 

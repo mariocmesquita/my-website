@@ -5,6 +5,11 @@
     "baseUrl": "./",
     "noImplicitAny": false,
     "strictBindCallApply": false,
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": false,
+    "paths": {
+      "@/*": ["src/*"],
+      "@common/*": ["src/common/*"],
+      "@generated/prisma": ["generated/prisma/client/client"]
+    }
   }
 }

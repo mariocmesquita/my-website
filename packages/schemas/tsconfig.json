@@ -1,0 +1,7 @@
+{
+  "extends": "@my-website/typescript-config/base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "target": "ES2020"
+  }
+}

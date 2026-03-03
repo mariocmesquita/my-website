@@ -7,11 +7,25 @@
 // Prisma 7: client is generated at apps/api/generated/prisma
 // Import in services with: import { PrismaClient } from '../../generated/prisma'
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+    provider     = "prisma-client"
+    output       = "../generated/prisma/client"
+    moduleFormat = "cjs"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+    provider = "postgresql"
+}
+
+model Profile {
+    id          String   @id @db.Uuid
+    name        String   @db.VarChar(50)
+    position    String   @db.VarChar(50)
+    description String   @db.VarChar(130)
+    bio         String   @db.VarChar(1000)
+    email       String   @db.VarChar(50)
+    socialLinks Json     @default("{}")
+    createdAt   DateTime @default(now()) @map("created_at")
+    updatedAt   DateTime @updatedAt @map("updated_at")
+
+    @@map("profiles")
 }
