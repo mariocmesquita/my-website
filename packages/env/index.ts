@@ -9,6 +9,7 @@ export const env = createEnv({
     FIREBASE_PRIVATE_KEY: z.string().min(1),
     SERVER_PORT: z.coerce.number().int().positive().default(3001),
     NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
+    SESSION_SECRET: z.string().min(32),
   },
   shared: {
     NEXT_PUBLIC_API_URL: z.string().min(1),
@@ -26,6 +27,7 @@ export const env = createEnv({
     FIREBASE_PRIVATE_KEY: process.env.FIREBASE_PRIVATE_KEY,
     SERVER_PORT: process.env.SERVER_PORT,
     NODE_ENV: process.env.NODE_ENV,
+    SESSION_SECRET: process.env.SESSION_SECRET,
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
     NEXT_PUBLIC_FIREBASE_API_KEY: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
     NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
