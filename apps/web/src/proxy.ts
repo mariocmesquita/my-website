@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from 'next/server';
 
 import { getSession } from '@/lib/session';
 
-const PROTECTED_ROUTES = ['/dashboard'];
+const PROTECTED_ROUTES = ['/dashboard', '/career', '/projects', '/posts', '/profile'];
 const AUTH_ROUTES = ['/auth/sign-in'];
 const LOGIN_PAGE = '/auth/sign-in';
 

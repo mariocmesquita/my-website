@@ -154,6 +154,25 @@ web/src/
 - Session DAL in `lib/session.ts` (server-only) — functions: `getSession()`, `setSession()`, `clearSession()`, `verifySession()`.
 - HTTP client functions in `http/` folder — pure functions, no side effects.
 
+### Component Decomposition
+
+Decompose components proactively. Do not leave monolithic components in place when they can be split into smaller, focused parts.
+
+**Split a component when it has any of:**
+
+- Distinct visual sections that can be named (header, nav, profile, footer)
+- Mixed concerns — e.g., a component that owns both layout and side effects (fetch, auth, events)
+- State or effects that belong to a sub-section, not the whole component
+- A reusable piece that appears or could appear in more than one place
+
+**Rules:**
+
+- Presentational components (no state/effects) do not need `'use client'` — keep them as light as possible
+- State and effects must live as close to where they are used as possible — do not hoist them to a parent unless strictly necessary
+- A parent component should be an orchestrator: layout + composition; it should not own logic that belongs to a child
+- Co-locate extracted components in the same folder as the parent unless they are clearly reusable across features (then move to `components/ui/` or `components/shared/`)
+- No `index.ts` barrel files — import directly from the file
+
 ### Design Tokens (globals.css)
 
 - `--brand: #4a3428` → `bg-brand`, `text-brand`, `border-brand`
