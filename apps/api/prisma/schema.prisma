@@ -29,6 +29,24 @@ model Career {
     @@map("careers")
 }
 
+model Project {
+    id          String   @id @db.Uuid
+    title       String   @db.VarChar(200)
+    slug        String   @unique @db.VarChar(200)
+    summary     String   @db.VarChar(300)
+    description String   @db.Text
+    bannerImage String?  @map("banner_image") @db.Text
+    screenshots Json     @default("[]")
+    githubLink  String?  @map("github_link") @db.Text
+    techStack   Json     @default("[]") @map("tech_stack")
+    publishDate DateTime @map("publish_date") @db.Date
+    archived    Boolean  @default(false)
+    createdAt   DateTime @default(now()) @map("created_at")
+    updatedAt   DateTime @updatedAt @map("updated_at")
+
+    @@map("projects")
+}
+
 model Profile {
     id          String   @id @db.Uuid
     name        String   @db.VarChar(50)

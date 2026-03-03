@@ -1,43 +1,29 @@
+import { type ProjectListItem } from '@my-website/schemas/project';
 import { ArrowUpRight } from 'lucide-react';
 import Link from 'next/link';
 
-import type { Project } from '@/components/ui/ProjectCard';
 import { ProjectCard } from '@/components/ui/ProjectCard';
 
-const PROJECTS: Project[] = [
-  {
-    title: 'my-website',
-    description:
-      'Personal website with CV, portfolio, projects, and blog. Built as a full-stack monorepo with Next.js and NestJS, featuring Firebase Auth and a PostgreSQL database.',
-    techStack: ['Next.js', 'NestJS', 'PostgreSQL', 'Prisma'],
-    bannerColor: 'from-stone-300 to-stone-400',
-  },
-  {
-    title: 'Image Processing Pipeline',
-    description:
-      'Automated pipeline for product image processing — background removal, normalization, and multi-size/format export. Replaced manual editing and cut processing time from weeks to hours.',
-    techStack: ['Node.js', 'TypeScript', 'Docker', 'AWS'],
-    bannerColor: 'from-amber-200 to-amber-300',
-  },
-  {
-    title: 'Real-time Tracking System',
-    description:
-      'Cross-platform real-time tracking feature for a corporate training platform, delivering live updates across web and mobile applications.',
-    techStack: ['React Native', 'NestJS', 'Redis', 'Firebase'],
-    bannerColor: 'from-emerald-200 to-emerald-300',
-  },
-];
+interface ProjectsSectionProps {
+  projects: ProjectListItem[];
+}
 
-export function ProjectsSection() {
+export function ProjectsSection({ projects }: ProjectsSectionProps) {
+  const visible = projects.slice(0, 3);
+
   return (
     <section id="projects" className="mt-16">
       <h2 className="font-spectral font-bold text-[19px] text-foreground mb-7">Últimos Projetos</h2>
 
-      <div className="space-y-9">
-        {PROJECTS.map((project) => (
-          <ProjectCard key={project.title} project={project} />
-        ))}
-      </div>
+      {visible.length > 0 ? (
+        <div className="space-y-9">
+          {visible.map((project) => (
+            <ProjectCard key={project.id} project={project} />
+          ))}
+        </div>
+      ) : (
+        <p className="text-sm text-muted-foreground">Nenhum projeto publicado ainda.</p>
+      )}
 
       <Link
         href="/projects"

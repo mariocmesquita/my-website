@@ -8,9 +8,14 @@ import { ProjectsSection } from '@/components/sections/ProjectsSection';
 import { BackToTopButton } from '@/components/ui/BackToTopButton';
 import { getCareerData } from '@/lib/career';
 import { getProfileData } from '@/lib/profile';
+import { getPublishedProjects } from '@/lib/project';
 
 export default async function Home() {
-  const [profile, careers] = await Promise.all([getProfileData(), getCareerData()]);
+  const [profile, careers, projects] = await Promise.all([
+    getProfileData(),
+    getCareerData(),
+    getPublishedProjects(),
+  ]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -23,7 +28,7 @@ export default async function Home() {
           <Navbar />
           <AboutSection profile={profile} />
           <CareerSection entries={careers} />
-          <ProjectsSection />
+          <ProjectsSection projects={projects} />
           <PostsSection />
           <Footer />
         </main>

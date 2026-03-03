@@ -18,12 +18,21 @@ interface FormDatePickerProps<
   label: string;
   hint?: string;
   nullable?: boolean;
+  fromYear?: number;
+  toYear?: number;
 }
 
 export function FormDatePicker<
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
->({ name, label, hint, nullable = false }: FormDatePickerProps<TFieldValues, TName>) {
+>({
+  name,
+  label,
+  hint,
+  nullable = false,
+  fromYear = 1990,
+  toYear = new Date().getFullYear(),
+}: FormDatePickerProps<TFieldValues, TName>) {
   const { control, formState } = useFormContext<TFieldValues>();
   const error = formState.errors[name];
   const [open, setOpen] = useState(false);
@@ -65,8 +74,8 @@ export function FormDatePicker<
                     if (date) setOpen(false);
                   }}
                   captionLayout="dropdown"
-                  fromYear={1990}
-                  toYear={new Date().getFullYear()}
+                  fromYear={fromYear}
+                  toYear={toYear}
                   locale={ptBR}
                 />
                 {nullable && (
