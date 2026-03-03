@@ -6,7 +6,8 @@
   "types": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./profile": "./src/profile.ts"
+    "./profile": "./src/profile.ts",
+    "./career": "./src/career.ts"
   },
   "devDependencies": {
     "@my-website/typescript-config": "workspace:*"

@@ -9,20 +9,24 @@ interface FormFieldProps<
 > extends InputHTMLAttributes<HTMLInputElement> {
   name: TName;
   label: string;
+  hint?: string;
 }
 
 export function FormField<
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
->({ name, label, ...props }: FormFieldProps<TFieldValues, TName>) {
+>({ name, label, hint, ...props }: FormFieldProps<TFieldValues, TName>) {
   const { register, formState } = useFormContext<TFieldValues>();
   const error = formState.errors[name];
 
   return (
     <div className="flex flex-col gap-1">
-      <label htmlFor={String(name)} className="text-sm font-medium text-foreground">
-        {label}
-      </label>
+      <div className="flex items-baseline justify-between">
+        <label htmlFor={String(name)} className="text-sm font-medium text-foreground">
+          {label}
+        </label>
+        {hint && <span className="text-xs text-muted-foreground">{hint}</span>}
+      </div>
       <input
         id={String(name)}
         {...register(name)}

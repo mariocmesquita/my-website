@@ -6,10 +6,11 @@ import { CareerSection } from '@/components/sections/CareerSection';
 import { PostsSection } from '@/components/sections/PostsSection';
 import { ProjectsSection } from '@/components/sections/ProjectsSection';
 import { BackToTopButton } from '@/components/ui/BackToTopButton';
+import { getCareerData } from '@/lib/career';
 import { getProfileData } from '@/lib/profile';
 
 export default async function Home() {
-  const profile = await getProfileData();
+  const [profile, careers] = await Promise.all([getProfileData(), getCareerData()]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -21,7 +22,7 @@ export default async function Home() {
         <main className="flex-1 min-w-0 pl-10 pr-6">
           <Navbar />
           <AboutSection profile={profile} />
-          <CareerSection />
+          <CareerSection entries={careers} />
           <ProjectsSection />
           <PostsSection />
           <Footer />
