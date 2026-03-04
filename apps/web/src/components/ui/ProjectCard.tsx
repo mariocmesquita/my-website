@@ -1,11 +1,15 @@
 import { type ProjectListItem } from '@my-website/schemas/project';
 import Image from 'next/image';
+import Link from 'next/link';
 
 import { TechBadge } from '@/components/ui/TechBadge';
 
 export function ProjectCard({ project }: { project: ProjectListItem }) {
   return (
-    <div className="flex items-start gap-5">
+    <Link
+      href={`/projects/${project.slug}`}
+      className="group flex items-start gap-5 -mx-4 px-4 py-3 rounded-2xl hover:bg-brand/10 transition-colors"
+    >
       <div className="relative h-30 w-42 shrink-0 overflow-hidden rounded-xl border-2 border-brand/60">
         {project.bannerImage ? (
           <Image
@@ -20,18 +24,9 @@ export function ProjectCard({ project }: { project: ProjectListItem }) {
         )}
       </div>
       <div className="min-w-0 flex-1">
-        {project.githubLink ? (
-          <a
-            href={project.githubLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-spectral font-bold text-[16px] text-foreground hover:text-olive transition-colors"
-          >
-            {project.title}
-          </a>
-        ) : (
-          <p className="font-spectral font-bold text-[16px] text-foreground">{project.title}</p>
-        )}
+        <p className="font-spectral font-bold text-[16px] text-foreground group-hover:text-olive transition-colors">
+          {project.title}
+        </p>
         <p className="font-spectral text-[16px] text-foreground/80 leading-[1.65] mt-1 max-w-lg">
           {project.summary}
         </p>
@@ -41,6 +36,6 @@ export function ProjectCard({ project }: { project: ProjectListItem }) {
           ))}
         </div>
       </div>
-    </div>
+    </Link>
   );
 }

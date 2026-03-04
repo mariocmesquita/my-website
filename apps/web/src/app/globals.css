@@ -134,3 +134,23 @@
     cursor: pointer;
   }
 }
+
+/* Webkit (Chrome, Safari, Edge) — all scrollbars */
+*::-webkit-scrollbar {
+  width: 10px;
+}
+*::-webkit-scrollbar-track {
+  background: #f3e9dc;
+}
+*::-webkit-scrollbar-thumb {
+  background: #4a342899;
+  border-radius: 5px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: #4a3428cc;
+}
+
+/* Firefox */
+* {
+  scrollbar-color: #4a342899 #f3e9dc;
+}

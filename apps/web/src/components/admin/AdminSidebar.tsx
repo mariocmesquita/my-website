@@ -20,11 +20,11 @@ interface AdminSidebarProps {
 }
 
 const navItems = [
-  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/career', label: 'Carreira', icon: Briefcase },
-  { href: '/projects', label: 'Projetos', icon: FolderOpen },
-  { href: '/posts', label: 'Posts', icon: FileText },
-  { href: '/profile', label: 'Perfil', icon: User },
+  { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/admin/career', label: 'Carreira', icon: Briefcase },
+  { href: '/admin/projects', label: 'Projetos', icon: FolderOpen },
+  { href: '/admin/posts', label: 'Posts', icon: FileText },
+  { href: '/admin/profile', label: 'Perfil', icon: User },
 ] as const;
 
 export function AdminSidebar({ email }: AdminSidebarProps) {
@@ -32,7 +32,7 @@ export function AdminSidebar({ email }: AdminSidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
 
   const isActive = (href: string) => {
-    if (href === '/dashboard') return pathname === '/dashboard';
+    if (href === '/admin/dashboard') return pathname === '/admin/dashboard';
     return pathname.startsWith(href);
   };
 

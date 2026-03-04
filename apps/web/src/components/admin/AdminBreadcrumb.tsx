@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const ROUTE_LABELS: Record<string, string> = {
+  admin: 'Admin',
   dashboard: 'Dashboard',
   career: 'Carreira',
   projects: 'Projetos',

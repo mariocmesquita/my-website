@@ -9,7 +9,7 @@ const NAV_ITEMS = [
 export function Navbar() {
   return (
     <nav className="mt-5 mb-10">
-      <div className="inline-flex items-center gap-6 bg-brand h-11 px-6 rounded-xl font-sans">
+      <div className="flex items-center gap-6 bg-brand h-11 px-6 rounded-xl font-sans w-full">
         {NAV_ITEMS.map((item) => (
           <Link
             key={item.href}

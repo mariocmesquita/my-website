@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from 'next/server';
 
 import { getSession } from '@/lib/session';
 
-const PROTECTED_ROUTES = ['/dashboard', '/career', '/projects', '/posts', '/profile'];
+const PROTECTED_ROUTES = ['/admin'];
 const AUTH_ROUTES = ['/auth/sign-in'];
 const LOGIN_PAGE = '/auth/sign-in';
 
@@ -23,7 +23,7 @@ export default async function proxy(request: NextRequest) {
   if (isAuthRoute) {
     const session = await getSession();
     if (session.uid) {
-      return NextResponse.redirect(new URL('/dashboard', request.url));
+      return NextResponse.redirect(new URL('/admin/dashboard', request.url));
     }
   }
 

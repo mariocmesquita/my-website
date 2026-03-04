@@ -55,7 +55,7 @@ export function FormDatePicker<
                 <button
                   type="button"
                   className={cn(
-                    'flex w-full items-center gap-2 rounded-lg border-1 border-brand bg-background px-3 py-2 text-sm text-foreground outline-none transition hover:border-brand/80 focus:border-olive focus:ring-2 focus:ring-olive/30',
+                    'flex w-full items-center gap-2 rounded-lg border-1 border-brand bg-background px-3 py-2 text-sm text-foreground outline-none transition hover:border-brand/80 focus:border-brand focus:ring-2 focus:ring-brand/20',
                     !field.value && 'text-foreground/40',
                   )}
                 >

@@ -54,7 +54,7 @@ export function TechStackField({ name, label }: TechStackFieldProps) {
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="Ex: Next.js — Enter ou vírgula para adicionar"
-          className="flex-1 rounded-lg border-1 border-brand bg-background px-3 py-2 text-sm text-foreground outline-none transition placeholder:text-foreground/40 focus:border-olive focus:ring-2 focus:ring-olive/30 hover:border-brand/80"
+          className="flex-1 rounded-lg border-1 border-brand bg-background px-3 py-2 text-sm text-foreground outline-none transition placeholder:text-foreground/40 focus:border-brand focus:ring-2 focus:ring-brand/20 hover:border-brand/80"
         />
         <button
           type="button"

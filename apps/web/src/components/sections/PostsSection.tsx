@@ -1,8 +1,7 @@
 import { ArrowUpRight } from 'lucide-react';
 import Link from 'next/link';
 
-import type { Post } from '@/components/ui/PostCard';
-import { PostCard } from '@/components/ui/PostCard';
+import { type Post, PostCard } from '@/components/ui/PostCard';
 
 const POSTS: Post[] = [
   {
@@ -39,11 +38,15 @@ export function PostsSection() {
     <section id="posts" className="mt-16">
       <h2 className="font-spectral font-bold text-[19px] text-foreground mb-7">Últimos posts</h2>
 
-      <div className="space-y-9">
-        {POSTS.map((post) => (
-          <PostCard key={post.title} post={post} />
-        ))}
-      </div>
+      {POSTS.length > 0 ? (
+        <div className="space-y-9">
+          {POSTS.map((post) => (
+            <PostCard key={post.title} post={post} />
+          ))}
+        </div>
+      ) : (
+        <p className="text-sm text-muted-foreground">Nenhum post publicado ainda.</p>
+      )}
 
       <Link
         href="/blog"

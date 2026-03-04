@@ -1,289 +1,107 @@
 # CLAUDE.md — Project Conventions and Architecture
 
-This file defines the rules, conventions, and architectural decisions for this project. Follow it strictly across all sessions.
+Personal website monorepo (Turborepo + pnpm): `apps/api` (NestJS), `apps/web` (Next.js), `packages/env`, `packages/schemas`, `packages/typescript-config`, `packages/eslint-config`, `packages/prettier-config`.
 
 ---
 
-## Overview
+## Rules
 
-Personal website with CV, portfolio, projects, and blog. Monorepo managed with **Turborepo** and **pnpm**.
+- **pnpm only** — never edit `package.json` manually; use `pnpm add/remove/update`
+- **Check lib versions first** — read existing `package.json` and fetch latest docs before using any library
+- **All text in Brazilian Portuguese** — errors, logs, Zod messages, API responses, UI text
+- **No `index.ts` barrel files** — import directly from the file
+- `simple-import-sort` is enforced as error — run `eslint --fix` after creating files with imports
 
 ---
 
-## Monorepo Structure
+## Backend (`apps/api`) — NestJS
+
+**Stack**: NestJS · Prisma 7 · PostgreSQL · Firebase Auth · Zod · UUIDv7
+
+**Architecture** — one folder per feature under `src/modules/<feature>/`:
+
+- `controller.ts` — HTTP routing + input validation only
+- `service.ts` — business logic
+- `repository.ts` — Prisma queries
+- `module.ts` — NestJS wiring
+
+**Key rules**:
+
+- Functional programming, `readonly` on class properties
+- Zod validates all incoming payloads; errors in PT-BR
+- Firebase Auth guard (`common/guards/firebase-auth.guard.ts`) protects private endpoints — no roles, authenticated or not
+- All IDs: UUIDv7
+- Prisma 7: generator is `prisma-client`; import from `'../../generated/prisma/client'`
+- CORS enabled in `main.ts`
+
+---
+
+## Frontend (`apps/web`) — Next.js App Router
+
+**Stack**: Next.js · Tailwind CSS 4 · shadcn/ui (new-york, neutral) · React Query · react-hook-form · Zod · Firebase Client SDK · iron-session · sonner
+
+**Directory layout**:
 
 ```
-my-website/
-├── apps/
-│   ├── api/          # Backend — NestJS
-│   └── web/          # Frontend — Next.js
-├── packages/
-│   ├── env/                  # @my-website/env — env validation (@t3-oss/env-nextjs)
-│   ├── schemas/              # @my-website/schemas — shared Zod schemas (frontend + backend)
-│   ├── typescript-config/    # Shared TypeScript configs
-│   ├── eslint-config/        # Shared ESLint configs
-│   └── prettier-config/      # Shared Prettier config
-├── .env                      # All env vars (root — shared by both apps)
-├── docker-compose.yml
-├── turbo.json
-├── pnpm-workspace.yaml
-└── package.json
-```
-
----
-
-## Package Manager
-
-- **Always use pnpm** to install, remove, or update dependencies:
-  - Install: `pnpm add <package>` (or `pnpm add -D` for devDependencies)
-  - Remove: `pnpm remove <package>`
-  - Update: `pnpm update <package>`
-  - **Never manually edit `package.json` files** to add or remove dependencies — always use the commands above.
-
----
-
-## Library Versioning Rule
-
-- **Never assume a library's version.**
-- Before using any lib:
-  1. Check if it already exists in any `package.json` in the project (root, `apps/api`, `apps/web`, or any package).
-  2. Search the web for the library's latest documentation to know how to implement it correctly.
-- This ensures compatibility and use of the most up-to-date APIs.
-
----
-
-## `apps/api` — Backend (NestJS)
-
-### Stack
-
-- **Framework**: NestJS
-- **ORM**: Prisma 7
-- **Database**: PostgreSQL (via Docker Compose)
-- **Authentication**: Firebase Auth (JWT token verification in guards)
-- **Validation**: Zod (installed at root — available to all packages)
-- **IDs**: UUIDv7 in the PostgreSQL database
-
-### Layered Architecture
-
-```
-api/src/
-├── modules/
-│   └── <feature>/
-│       ├── <feature>.controller.ts   # HTTP entry point, request validation
-│       ├── <feature>.service.ts      # Business logic
-│       ├── <feature>.repository.ts   # Database access via Prisma
-│       └── <feature>.module.ts       # NestJS module
-├── common/
-│   ├── guards/                       # Firebase Auth guard
-│   ├── filters/                      # Exception filters
-│   ├── interceptors/
-│   └── pipes/
-├── prisma/
-│   ├── schema.prisma
-│   └── migrations/
-└── main.ts
-```
-
-### Backend Conventions
-
-- **Functional programming and clean code** — prefer pure functions, avoid state mutation, compose pipelines.
-- All business logic lives in the service; the controller only routes and validates input.
-- Use `readonly` on class properties whenever possible.
-- Errors, logs, validation messages, and API responses must be in **Brazilian Portuguese**.
-- Use Zod to validate incoming payloads (Zod is installed at monorepo root).
-- Firebase Auth guards protect private endpoints; no permission system for now (authenticated or not).
-- All database IDs must use **UUIDv7**.
-
-### Prisma 7 Specifics
-
-- Generator name: `prisma-client` (not `client`)
-- Import the Prisma client with: `from '../../generated/prisma/client'` (not `@prisma/client`)
-- Use `prisma migrate dev` for development and `prisma migrate deploy` for production.
-
-### Database and Docker
-
-- PostgreSQL is configured via `docker-compose.yml` at the monorepo root.
-- The connection string comes from the `DATABASE_URL` environment variable.
-
----
-
-## `apps/web` — Frontend (Next.js)
-
-### Stack
-
-- **Framework**: Next.js (App Router)
-- **Styling**: Tailwind CSS 4, shadcn/ui (new-york style, neutral base)
-- **Validation**: Zod (installed at root — available to all packages)
-- **Data fetching**: React Query (for client components with caching)
-- **Forms**: react-hook-form (integrated with Zod via `@hookform/resolvers/zod`)
-- **Authentication**: Firebase Client SDK + iron-session (httpOnly cookie sessions)
-- **Notifications**: sonner (toast)
-
-### Directory Structure
-
-```
-web/src/
+src/
 ├── app/
-│   ├── api/auth/session/route.ts   # POST/DELETE session endpoints (iron-session)
-│   ├── (admin)/                    # Protected admin section
-│   │   ├── layout.tsx              # Admin layout (auth check)
-│   │   ├── dashboard/              # Admin dashboard
-│   │   ├── profile/                # Profile editor (form + review dialog)
-│   │   ├── career/
-│   │   ├── projects/
-│   │   └── posts/
-│   ├── (public)/                   # Public landing page
-│   │   └── page.tsx
-│   ├── auth/sign-in/               # Sign-in page
-│   └── providers.tsx               # QueryClientProvider + Toaster
+│   ├── (public)/          # Public pages (landing, project detail, blog)
+│   ├── (admin)/           # Protected admin (dashboard, profile, career, projects, posts)
+│   ├── auth/sign-in/
+│   ├── api/auth/session/  # iron-session POST/DELETE
+│   └── providers.tsx      # QueryClientProvider + Toaster
 ├── components/
-│   ├── form/                       # FormField, FormButton, FormError
-│   ├── layout/                     # Sidebar, Navbar
-│   ├── sections/                   # AboutSection, CareerSection, ProjectsSection, PostsSection
-│   └── ui/                         # TechBadge, BackToTopButton, shadcn components
-├── hooks/
-│   ├── useZodForm.ts               # Generic form hook with Zod resolver
-│   └── useProfile.ts               # React Query hooks: useProfile(), useUpdateProfile()
-├── http/
-│   ├── auth.ts                     # Pure HTTP client functions (postSession, deleteSession)
-│   └── profile.ts                  # Pure HTTP client functions (getProfile, updateProfile)
-├── lib/
-│   ├── firebase.ts                 # Firebase init + useAuth() hook
-│   ├── session.ts                  # iron-session DAL (server-only)
-│   ├── profile.ts                  # getProfileData() — server-side fetch with cache
-│   └── utils.ts
-└── proxy.ts                        # Route protection (replaces middleware.ts)
+│   ├── form/              # FormField, FormButton, FormError, FormTextarea, FormDatePicker, FormSwitch
+│   ├── layout/            # Sidebar, Navbar
+│   ├── sections/          # AboutSection, CareerSection, ProjectsSection, PostsSection
+│   └── ui/                # TechBadge, ProjectCard, shadcn components
+├── hooks/                 # useZodForm, useProfile, useCareer, useProjects
+├── http/                  # Pure client fetch functions (auth, profile, career, project)
+├── lib/                   # Server-side fetch + DAL (session, profile, career, project)
+└── proxy.ts               # Route protection (Node.js runtime, replaces middleware.ts)
 ```
 
-### Frontend Conventions
+**Key rules**:
 
-- **Functional programming and clean code** — use functional components and hooks, avoid classes.
-- Default to Server Components; use Client Components only when needed (interactivity, React Query, forms).
-- Requests to `apps/api` via React Query with proper cache settings (staleTime, gcTime).
-- Forms use react-hook-form with Zod validation via the `useZodForm` hook.
-- Validation errors, feedback messages, and UI text must be in **Brazilian Portuguese**.
-- Route protection via `src/proxy.ts` (not middleware.ts) — Node.js runtime.
-- Session DAL in `lib/session.ts` (server-only) — functions: `getSession()`, `setSession()`, `clearSession()`, `verifySession()`.
-- HTTP client functions in `http/` folder — pure functions, no side effects.
+- Default to Server Components; `'use client'` only for interactivity/hooks/forms
+- `lib/*.ts` — server-side fetches with Next.js `cache`; `http/*.ts` — pure client functions
+- Forms: `useZodForm<T>(schema, options?)` with `mode: 'onChange'`; `ZodType<T, any>` to support schemas with `.default()`
+- Admin pages pattern: Server Component page → `*PageClient.tsx` (React Query + state) → `*Sheet.tsx` → `*Form.tsx` + field components
+- File uploads: use `<label htmlFor>` to trigger hidden inputs — `inputRef.click()` is blocked inside dialogs
+- Route protection: `proxy.ts` protects `/dashboard`, `/profile`, `/career`, `/projects`, `/posts`
 
-### Component Decomposition
-
-Decompose components proactively. Do not leave monolithic components in place when they can be split into smaller, focused parts.
-
-**Split a component when it has any of:**
-
-- Distinct visual sections that can be named (header, nav, profile, footer)
-- Mixed concerns — e.g., a component that owns both layout and side effects (fetch, auth, events)
-- State or effects that belong to a sub-section, not the whole component
-- A reusable piece that appears or could appear in more than one place
-
-**Rules:**
-
-- Presentational components (no state/effects) do not need `'use client'` — keep them as light as possible
-- State and effects must live as close to where they are used as possible — do not hoist them to a parent unless strictly necessary
-- A parent component should be an orchestrator: layout + composition; it should not own logic that belongs to a child
-- Co-locate extracted components in the same folder as the parent unless they are clearly reusable across features (then move to `components/ui/` or `components/shared/`)
-- No `index.ts` barrel files — import directly from the file
-
-### Design Tokens (globals.css)
-
-- `--brand: #4a3428` → `bg-brand`, `text-brand`, `border-brand`
-- `--brand-foreground: #f3e9dc` → `text-brand-foreground`
-- `--olive: #6c7a4e` → `text-olive` (links)
-- `--background: #f3e9dc` (warm cream)
-- `--foreground: #2b1e17` (dark brown)
-- Font: Spectral (Google Fonts, weight 400/700) → `font-spectral` utility
+**Component decomposition**: split when a component has distinct visual sections, mixed concerns, or reusable pieces. State lives as close to use as possible. Parent = orchestrator only.
 
 ---
 
-## `packages/env` — Environment Validation
+## Shared Packages
 
-- Package: `@my-website/env`
-- Validates all environment variables using `@t3-oss/env-nextjs` and Zod.
-- `index.ts`: full env schema (API + web vars) — used by `apps/api`
-- `web.ts`: client-only schema (NEXT*PUBLIC*\* vars) — used by `apps/web`
-- Import: `import { env } from '@my-website/env'`
+**`@my-website/env`** — env validation via `@t3-oss/env-nextjs`. `index.ts` for API, `web.ts` for Next.js.
+
+**`@my-website/schemas`** — shared Zod schemas between frontend and backend. Add schemas here for any resource shared across apps. Current exports: Profile, Career, Project (full, list item, detail, admin, create, update schemas).
 
 ---
 
-## `packages/schemas` — Shared Zod Schemas
+## Design Tokens (globals.css)
 
-- Package: `@my-website/schemas`
-- Shared validation schemas consumed by both `apps/api` and `apps/web` — eliminates duplication.
-- Import: `import { ProfileSchema, UpdateProfileSchema } from '@my-website/schemas'`
-
-### Exported Schemas
-
-- `SocialLinksSchema` — github, linkedin, instagram, youtube (all optional strings)
-- `ProfileSchema` — full profile shape (id, name, position, description, bio, email, socialLinks, createdAt, updatedAt)
-- `UpdateProfileSchema` — PATCH payload (name, position, description, bio, email, socialLinks — all required)
-
-### Convention
-
-- Add new schemas here whenever a resource is shared between frontend and backend.
-- Backend feature modules re-export from `@my-website/schemas` rather than defining their own.
-
----
-
-## Language
-
-All of the following must be in **Brazilian Portuguese**:
-
-- Error messages (API and frontend)
-- Log messages (backend)
-- Zod validation errors
-- API responses (`message`, `error` fields, etc.)
-- User interface text
+`--brand: #4a3428` · `--brand-foreground: #f3e9dc` · `--olive: #6c7a4e` · `--background: #f3e9dc` · `--foreground: #2b1e17` · Font: Spectral 400/700 → `font-spectral`
 
 ---
 
 ## Authentication
 
-### Frontend (Thin Cookie Bridge Pattern)
+**Frontend**: Firebase sign-in → `POST /api/auth/session` → httpOnly cookie (iron-session) → `proxy.ts` verifies on each request. API calls use `Authorization: Bearer <firebase-id-token>`.
 
-1. Firebase Client SDK handles sign-in (`signInWithEmailAndPassword`)
-2. After sign-in, `POST /api/auth/session` creates an httpOnly cookie via iron-session
-3. `proxy.ts` protects private routes by verifying the session cookie server-side
-4. API calls include Firebase ID token in `Authorization: Bearer <token>` header
-
-**Key files:**
-
-- `lib/firebase.ts` — Firebase init + `useAuth()` hook (`{ user, isLoading, getToken, signOut }`)
-- `lib/session.ts` — iron-session DAL (server-only): `getSession()`, `setSession(uid, email)`, `clearSession()`, `verifySession()`
-- `http/auth.ts` — pure functions: `postSession()`, `deleteSession()`
-- `src/proxy.ts` — protects `/dashboard`, `/profile`, `/career`, `/projects`, `/posts`; redirects authenticated users away from `/auth/sign-in`
-
-### Backend (NestJS Guard)
-
-- Firebase Admin SDK verifies JWT tokens in the `Authorization: Bearer <token>` header.
-- Guard at `common/guards/firebase-auth.guard.ts`.
-- No roles or permission system for now — any valid token grants access to private endpoints.
+**Backend**: Firebase Admin SDK verifies JWT in the guard. No roles.
 
 ---
 
 ## Environment Variables
 
-- **All env vars live in a single `.env` file at the monorepo root.**
-- Each app also has its own `.env.example` (scoped to its own vars) for reference.
-- The root `.env.example` contains all vars for both apps.
-- Never commit `.env` files with real values.
-- `packages/env` validates all vars at runtime using `@t3-oss/env-nextjs`.
+All vars in root `.env`. Key vars: `DATABASE_URL`, `FIREBASE_*` (api), `SESSION_SECRET` (min 32 chars), `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_FIREBASE_*`, `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET` (web).
 
-### Variables
+---
 
-| Variable                                   | Used by                          |
-| ------------------------------------------ | -------------------------------- |
-| `DATABASE_URL`                             | api                              |
-| `FIREBASE_PROJECT_ID`                      | api                              |
-| `FIREBASE_CLIENT_EMAIL`                    | api                              |
-| `FIREBASE_PRIVATE_KEY`                     | api                              |
-| `SERVER_PORT`                              | api                              |
-| `NODE_ENV`                                 | api                              |
-| `SESSION_SECRET`                           | web (iron-session, min 32 chars) |
-| `NEXT_PUBLIC_API_URL`                      | web                              |
-| `NEXT_PUBLIC_FIREBASE_API_KEY`             | web                              |
-| `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`         | web                              |
-| `NEXT_PUBLIC_FIREBASE_PROJECT_ID`          | web                              |
-| `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`      | web                              |
-| `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` | web                              |
-| `NEXT_PUBLIC_FIREBASE_APP_ID`              | web                              |
+## Firebase Storage
+
+Bucket: `my-website-7a1fa.firebasestorage.app`. Rules: public read, write disabled (uploads via Admin SDK only). URL format: `https://firebasestorage.googleapis.com/v0/b/{bucket}/o/{encodedPath}?alt=media`. `next.config.ts` remotePatterns includes `firebasestorage.googleapis.com`.

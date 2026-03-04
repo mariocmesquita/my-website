@@ -11,12 +11,14 @@ export interface Post {
 
 export function PostCard({ post }: { post: Post }) {
   return (
-    <div className="flex items-start gap-5">
+    <div className="group flex items-start gap-5 -mx-4 px-4 py-3 rounded-2xl hover:bg-brand/5 transition-colors cursor-default">
       <div
         className={`w-42 h-30 rounded-xl border-2 border-brand/60 overflow-hidden shrink-0 bg-gradient-to-br ${post.bannerColor}`}
       />
       <div className="flex-1 min-w-0">
-        <p className="font-spectral font-bold text-[16px] text-foreground">{post.title}</p>
+        <p className="font-spectral font-bold text-[16px] text-foreground group-hover:text-olive transition-colors">
+          {post.title}
+        </p>
         <p className="font-spectral text-[16px] text-foreground/80 leading-[1.65] mt-1 max-w-lg">
           {post.excerpt}
         </p>
