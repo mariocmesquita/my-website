@@ -23,7 +23,7 @@ import {
 } from 'lucide-react';
 import { Markdown } from 'tiptap-markdown';
 
-import { cn } from '@/lib/utils';
+import { cn } from '@/server/utils';
 
 import styles from './MarkdownEditor.module.css';
 

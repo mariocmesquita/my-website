@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 import { deleteSession } from '@/http/auth';
-import { firebaseAuth } from '@/lib/firebase';
+import { firebaseAuth } from '@/server/firebase';
 
 interface SidebarProfileProps {
   email: string | null;

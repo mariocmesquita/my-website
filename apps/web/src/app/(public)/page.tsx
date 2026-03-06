@@ -6,10 +6,10 @@ import { CareerSection } from '@/components/sections/CareerSection';
 import { PostsSection } from '@/components/sections/PostsSection';
 import { ProjectsSection } from '@/components/sections/ProjectsSection';
 import { BackToTopButton } from '@/components/ui/BackToTopButton';
-import { getCareerData } from '@/lib/career';
-import { getPublishedPosts } from '@/lib/post';
-import { getProfileData } from '@/lib/profile';
-import { getPublishedProjects } from '@/lib/project';
+import { getCareerData } from '@/server/career';
+import { getPublishedPosts } from '@/server/post';
+import { getProfileData } from '@/server/profile';
+import { getPublishedProjects } from '@/server/project';
 
 export default async function Home() {
   const [profile, careers, projects, posts] = await Promise.all([

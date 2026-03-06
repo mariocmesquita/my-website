@@ -1,4 +1,4 @@
-import { getSession } from '@/lib/session';
+import { getSession } from '@/server/session';
 
 export default async function DashboardPage() {
   const session = await getSession();

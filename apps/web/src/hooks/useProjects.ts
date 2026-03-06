@@ -10,7 +10,7 @@ import {
   updateProject,
   type UpdateProjectInput,
 } from '@/http/project';
-import { useAuth } from '@/lib/firebase';
+import { useAuth } from '@/server/firebase';
 
 export const PROJECTS_QUERY_KEY = ['projects', 'admin'] as const;
 

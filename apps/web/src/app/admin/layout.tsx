@@ -2,7 +2,7 @@ import { type ReactNode } from 'react';
 
 import { AdminBreadcrumb } from '@/components/admin/AdminBreadcrumb';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
-import { getSession } from '@/lib/session';
+import { getSession } from '@/server/session';
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {
   const session = await getSession();

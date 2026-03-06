@@ -12,7 +12,7 @@ import { FormError } from '@/components/form/FormError';
 import { FormField } from '@/components/form/FormField';
 import { useZodForm } from '@/hooks/useZodForm';
 import { postSession } from '@/http/auth';
-import { firebaseAuth } from '@/lib/firebase';
+import { firebaseAuth } from '@/server/firebase';
 
 const signInSchema = z.object({
   email: z.string().min(1, 'E-mail é obrigatório.').email('E-mail inválido.'),

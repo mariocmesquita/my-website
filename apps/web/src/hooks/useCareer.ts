@@ -10,7 +10,7 @@ import {
   updateCareer,
   type UpdateCareerInput,
 } from '@/http/career';
-import { useAuth } from '@/lib/firebase';
+import { useAuth } from '@/server/firebase';
 
 export const CAREER_QUERY_KEY = ['career'] as const;
 

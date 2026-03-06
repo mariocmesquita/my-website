@@ -7,8 +7,8 @@ import { notFound } from 'next/navigation';
 
 import { Navbar } from '@/components/layout/Navbar';
 import { TechBadge } from '@/components/ui/TechBadge';
-import { getPostDetail } from '@/lib/post';
-import { getPublishedProjects } from '@/lib/project';
+import { getPostDetail } from '@/server/post';
+import { getPublishedProjects } from '@/server/project';
 
 import { PostContent } from './PostContent';
 import { RelatedProjects } from './RelatedProjects';

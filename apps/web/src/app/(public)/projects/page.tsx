@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { Suspense } from 'react';
 
 import { Navbar } from '@/components/layout/Navbar';
-import { getPublishedProjects } from '@/lib/project';
+import { getPublishedProjects } from '@/server/project';
 
 import { ProjectsPageClient } from './ProjectsPageClient';
 

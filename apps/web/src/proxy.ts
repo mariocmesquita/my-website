@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server';
 
-import { getSession } from '@/lib/session';
+import { getSession } from '@/server/session';
 
 const PROTECTED_ROUTES = ['/admin'];
 const AUTH_ROUTES = ['/auth/sign-in'];

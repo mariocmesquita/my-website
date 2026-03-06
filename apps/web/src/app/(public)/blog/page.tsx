@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { Suspense } from 'react';
 
 import { Navbar } from '@/components/layout/Navbar';
-import { getPublishedPosts } from '@/lib/post';
+import { getPublishedPosts } from '@/server/post';
 
 import { BlogPageClient } from './BlogPageClient';
 

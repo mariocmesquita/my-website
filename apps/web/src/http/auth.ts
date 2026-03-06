@@ -1,5 +1,3 @@
-// Pure functions for auth API calls — no side effects, no React imports
-
 export async function postSession(uid: string, email: string | null): Promise<void> {
   const response = await fetch('/api/auth/session', {
     method: 'POST',

@@ -6,7 +6,7 @@ import { useFormContext } from 'react-hook-form';
 import { toast } from 'sonner';
 
 import { uploadProjectFile } from '@/http/project';
-import { useAuth } from '@/lib/firebase';
+import { useAuth } from '@/server/firebase';
 
 interface ScreenshotsFieldProps {
   name: string;

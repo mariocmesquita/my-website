@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-import { clearSession, setSession } from '@/lib/session';
+import { clearSession, setSession } from '@/server/session';
 
 export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => null);

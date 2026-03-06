@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
 import { getProfile, type Profile, updateProfile, type UpdateProfileInput } from '@/http/profile';
-import { useAuth } from '@/lib/firebase';
+import { useAuth } from '@/server/firebase';
 
 export const PROFILE_QUERY_KEY = ['profile'] as const;
 

@@ -8,7 +8,7 @@ import { Controller, type FieldPath, type FieldValues, useFormContext } from 're
 
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { cn } from '@/lib/utils';
+import { cn } from '@/server/utils';
 
 interface FormDatePickerProps<
   TFieldValues extends FieldValues = FieldValues,

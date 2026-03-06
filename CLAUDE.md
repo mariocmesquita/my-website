@@ -57,14 +57,14 @@ src/
 │   └── ui/                # TechBadge, ProjectCard, shadcn components
 ├── hooks/                 # useZodForm, useProfile, useCareer, useProjects, usePosts
 ├── http/                  # Pure client fetch functions (auth, profile, career, project, post)
-├── lib/                   # Server-side fetch + DAL (session, profile, career, project, post)
+├── server/                # Server-side fetch + DAL (session, profile, career, project, post)
 └── proxy.ts               # Route protection (Node.js runtime, replaces middleware.ts)
 ```
 
 **Key rules**:
 
 - Default to Server Components; `'use client'` only for interactivity/hooks/forms
-- `lib/*.ts` — server-side fetches with Next.js `cache`; `http/*.ts` — pure client functions
+- `server/*.ts` — server-side fetches with Next.js `cache`; `http/*.ts` — pure client functions
 - Forms: `useZodForm<T>(schema, options?)` with `mode: 'onChange'`; `ZodType<T, any>` to support schemas with `.default()`
 - Admin pages pattern (sheet): Server Component page → `*PageClient.tsx` (React Query + state) → `*Sheet.tsx` → `*Form.tsx` + field components
 - Admin pages pattern (dedicated page): for complex forms — `page.tsx` → `*PageClient.tsx` (list) → `/new/page.tsx` + `/[id]/edit/page.tsx` → `*Editor.tsx` (e.g. posts)

@@ -11,7 +11,7 @@ import {
   updatePost,
   type UpdatePostInput,
 } from '@/http/post';
-import { useAuth } from '@/lib/firebase';
+import { useAuth } from '@/server/firebase';
 
 export const POSTS_QUERY_KEY = ['posts', 'admin'] as const;
 

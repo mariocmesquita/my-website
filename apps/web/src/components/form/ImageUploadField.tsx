@@ -5,7 +5,7 @@ import { useRef, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { toast } from 'sonner';
 
-import { useAuth } from '@/lib/firebase';
+import { useAuth } from '@/server/firebase';
 
 interface ImageUploadFieldProps {
   name: string;
