@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 
+import { usePostsAdmin } from '@/hooks/usePosts';
 import {
   useCreateProject,
   useDeleteProject,
@@ -17,6 +18,7 @@ type SheetState = { open: boolean; project: ProjectAdmin | null };
 
 export function ProjectsPageClient() {
   const { data: projects = [], isLoading, isError } = useProjectsAdmin();
+  const { data: posts = [] } = usePostsAdmin();
   const { mutate: createProject, isPending: isCreating } = useCreateProject();
   const { mutate: updateProject, isPending: isUpdating } = useUpdateProject();
   const { mutate: deleteProject } = useDeleteProject();
@@ -65,6 +67,7 @@ export function ProjectsPageClient() {
       <ProjectsSheet
         open={sheet.open}
         project={sheet.project}
+        posts={posts}
         isSubmitting={isCreating || isUpdating}
         onSubmit={handleSubmit}
         onOpenChange={(open) => !open && closeSheet()}

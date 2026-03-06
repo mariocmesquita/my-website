@@ -38,3 +38,5 @@ Thumbs.db
 # Prisma
 prisma/migrations
 generated/
+
+.playwright-mcp/

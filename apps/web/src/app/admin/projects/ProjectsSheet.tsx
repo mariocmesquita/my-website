@@ -1,6 +1,7 @@
 'use client';
 
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { type PostAdmin } from '@/http/post';
 import { type CreateProjectInput, type ProjectAdmin } from '@/http/project';
 
 import { ProjectsForm } from './ProjectsForm';
@@ -8,6 +9,7 @@ import { ProjectsForm } from './ProjectsForm';
 interface ProjectsSheetProps {
   open: boolean;
   project: ProjectAdmin | null;
+  posts: PostAdmin[];
   isSubmitting: boolean;
   onSubmit: (values: CreateProjectInput) => void;
   onOpenChange: (open: boolean) => void;
@@ -16,6 +18,7 @@ interface ProjectsSheetProps {
 export function ProjectsSheet({
   open,
   project,
+  posts,
   isSubmitting,
   onSubmit,
   onOpenChange,
@@ -31,6 +34,7 @@ export function ProjectsSheet({
         <div className="px-6 pb-8">
           <ProjectsForm
             project={project ?? undefined}
+            posts={posts}
             isSubmitting={isSubmitting}
             onSubmit={onSubmit}
           />

@@ -8,7 +8,8 @@
     ".": "./src/index.ts",
     "./profile": "./src/profile.ts",
     "./career": "./src/career.ts",
-    "./project": "./src/project.ts"
+    "./project": "./src/project.ts",
+    "./post": "./src/post.ts"
   },
   "devDependencies": {
     "@my-website/typescript-config": "workspace:*"

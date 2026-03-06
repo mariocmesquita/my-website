@@ -44,7 +44,39 @@ model Project {
     createdAt   DateTime @default(now()) @map("created_at")
     updatedAt   DateTime @updatedAt @map("updated_at")
 
+    posts PostProject[]
+
     @@map("projects")
+}
+
+model Post {
+    id          String    @id @db.Uuid
+    title       String    @db.VarChar(200)
+    slug        String    @unique @db.VarChar(200)
+    summary     String    @db.VarChar(300)
+    content     String    @db.Text
+    bannerImage String?   @map("banner_image") @db.Text
+    tags        Json      @default("[]")
+    techStack   Json      @default("[]") @map("tech_stack")
+    status      String    @default("draft") @db.VarChar(20)
+    publishDate DateTime? @map("publish_date") @db.Date
+    createdAt   DateTime  @default(now()) @map("created_at")
+    updatedAt   DateTime  @updatedAt @map("updated_at")
+
+    projects PostProject[]
+
+    @@map("posts")
+}
+
+model PostProject {
+    postId    String @map("post_id") @db.Uuid
+    projectId String @map("project_id") @db.Uuid
+
+    post    Post    @relation(fields: [postId], references: [id], onDelete: Cascade)
+    project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+    @@id([postId, projectId])
+    @@map("post_projects")
 }
 
 model Profile {

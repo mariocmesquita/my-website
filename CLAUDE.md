@@ -51,13 +51,13 @@ src/
 │   ├── api/auth/session/  # iron-session POST/DELETE
 │   └── providers.tsx      # QueryClientProvider + Toaster
 ├── components/
-│   ├── form/              # FormField, FormButton, FormError, FormTextarea, FormDatePicker, FormSwitch
+│   ├── form/              # FormField, FormButton, FormError, FormTextarea, FormDatePicker, FormSwitch, MarkdownEditor
 │   ├── layout/            # Sidebar, Navbar
 │   ├── sections/          # AboutSection, CareerSection, ProjectsSection, PostsSection
 │   └── ui/                # TechBadge, ProjectCard, shadcn components
-├── hooks/                 # useZodForm, useProfile, useCareer, useProjects
-├── http/                  # Pure client fetch functions (auth, profile, career, project)
-├── lib/                   # Server-side fetch + DAL (session, profile, career, project)
+├── hooks/                 # useZodForm, useProfile, useCareer, useProjects, usePosts
+├── http/                  # Pure client fetch functions (auth, profile, career, project, post)
+├── lib/                   # Server-side fetch + DAL (session, profile, career, project, post)
 └── proxy.ts               # Route protection (Node.js runtime, replaces middleware.ts)
 ```
 
@@ -66,7 +66,8 @@ src/
 - Default to Server Components; `'use client'` only for interactivity/hooks/forms
 - `lib/*.ts` — server-side fetches with Next.js `cache`; `http/*.ts` — pure client functions
 - Forms: `useZodForm<T>(schema, options?)` with `mode: 'onChange'`; `ZodType<T, any>` to support schemas with `.default()`
-- Admin pages pattern: Server Component page → `*PageClient.tsx` (React Query + state) → `*Sheet.tsx` → `*Form.tsx` + field components
+- Admin pages pattern (sheet): Server Component page → `*PageClient.tsx` (React Query + state) → `*Sheet.tsx` → `*Form.tsx` + field components
+- Admin pages pattern (dedicated page): for complex forms — `page.tsx` → `*PageClient.tsx` (list) → `/new/page.tsx` + `/[id]/edit/page.tsx` → `*Editor.tsx` (e.g. posts)
 - File uploads: use `<label htmlFor>` to trigger hidden inputs — `inputRef.click()` is blocked inside dialogs
 - Route protection: `proxy.ts` protects `/dashboard`, `/profile`, `/career`, `/projects`, `/posts`
 
@@ -78,7 +79,7 @@ src/
 
 **`@my-website/env`** — env validation via `@t3-oss/env-nextjs`. `index.ts` for API, `web.ts` for Next.js.
 
-**`@my-website/schemas`** — shared Zod schemas between frontend and backend. Add schemas here for any resource shared across apps. Current exports: Profile, Career, Project (full, list item, detail, admin, create, update schemas).
+**`@my-website/schemas`** — shared Zod schemas between frontend and backend. Add schemas here for any resource shared across apps. Current exports: Profile, Career, Project, Post (list item, detail, admin, create, update schemas).
 
 ---
 

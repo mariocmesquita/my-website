@@ -10,6 +10,8 @@ const ROUTE_LABELS: Record<string, string> = {
   projects: 'Projetos',
   posts: 'Posts',
   profile: 'Perfil',
+  new: 'Novo',
+  edit: 'Editar',
 };
 
 export function AdminBreadcrumb() {

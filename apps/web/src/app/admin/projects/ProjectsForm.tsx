@@ -10,14 +10,17 @@ import { FormField } from '@/components/form/FormField';
 import { FormSwitch } from '@/components/form/FormSwitch';
 import { FormTextarea } from '@/components/form/FormTextarea';
 import { useZodForm } from '@/hooks/useZodForm';
+import { type PostAdmin } from '@/http/post';
 import { type CreateProjectInput, type ProjectAdmin } from '@/http/project';
 
 import { BannerImageField } from './BannerImageField';
+import { RelatedPostsField } from './RelatedPostsField';
 import { ScreenshotsField } from './ScreenshotsField';
 import { TechStackField } from './TechStackField';
 
 interface ProjectsFormProps {
   project?: ProjectAdmin;
+  posts: PostAdmin[];
   isSubmitting: boolean;
   onSubmit: (values: CreateProjectInput) => void;
 }
@@ -38,10 +41,11 @@ function toFormValues(project?: ProjectAdmin): CreateProjectInput {
     githubLink: project?.githubLink ?? '',
     publishDate: toDateInput(project?.publishDate),
     archived: project?.archived ?? false,
+    relatedPostIds: project?.relatedPostIds ?? [],
   };
 }
 
-export function ProjectsForm({ project, isSubmitting, onSubmit }: ProjectsFormProps) {
+export function ProjectsForm({ project, posts, isSubmitting, onSubmit }: ProjectsFormProps) {
   const methods = useZodForm<CreateProjectInput>(CreateProjectSchema, {
     defaultValues: toFormValues(project),
     mode: 'onChange',
@@ -99,6 +103,8 @@ export function ProjectsForm({ project, isSubmitting, onSubmit }: ProjectsFormPr
         <BannerImageField name="bannerImage" label="Imagem de capa" />
 
         <ScreenshotsField name="screenshots" label="Screenshots" />
+
+        <RelatedPostsField name="relatedPostIds" posts={posts} />
 
         <div className="pt-2">
           <FormButton disabled={isSubmitting} loadingText="Salvando...">

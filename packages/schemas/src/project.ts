@@ -35,6 +35,7 @@ export const ProjectAdminSchema = z.object({
   githubLink: z.string().nullable(),
   publishDate: z.string(),
   archived: z.boolean(),
+  relatedPostIds: z.array(z.string()).default([]),
   createdAt: z.string(),
   updatedAt: z.string(),
 });
@@ -61,6 +62,7 @@ export const CreateProjectSchema = z.object({
     .or(z.literal("")),
   publishDate: z.string().min(1, "Data de publicação é obrigatória."),
   archived: z.boolean().default(false),
+  relatedPostIds: z.array(z.string()).default([]),
 });
 
 export const UpdateProjectSchema = CreateProjectSchema;

@@ -106,7 +106,7 @@ export function ScreenshotsLightbox({ project }: { project: ProjectDetail }) {
             <div className="relative w-full max-w-5xl" onClick={(e) => e.stopPropagation()}>
               <div className="relative aspect-video w-full overflow-hidden rounded-2xl border border-white/10 shadow-2xl bg-black/30">
                 <Image
-                  src={screenshots[activeIndex]}
+                  src={screenshots[activeIndex]!}
                   alt={`Screenshot ${activeIndex + 1} — ${project.title}`}
                   fill
                   sizes="(max-width: 1280px) 100vw, 1280px"
