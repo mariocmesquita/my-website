@@ -2,7 +2,8 @@
 
 import { type Profile } from '@my-website/schemas/profile';
 import { Github, Instagram, Linkedin } from 'lucide-react';
-import { useEffect, useState } from 'react';
+
+import { useActiveSection } from '@/hooks/useActiveSection';
 
 const NAV_ANCHORS = [
   { label: 'Sobre mim', id: 'about' },
@@ -16,29 +17,6 @@ const SOCIAL_ICONS: Record<string, typeof Github> = {
   linkedin: Linkedin,
   instagram: Instagram,
 };
-
-function useActiveSection() {
-  const [active, setActive] = useState('about');
-
-  useEffect(() => {
-    const update = () => {
-      const threshold = window.innerHeight * 0.4;
-
-      let current = NAV_ANCHORS[0]?.id ?? 'about';
-      for (const { id } of NAV_ANCHORS) {
-        const el = document.getElementById(id);
-        if (el && el.getBoundingClientRect().top <= threshold) current = id;
-      }
-      setActive(current);
-    };
-
-    update();
-    window.addEventListener('scroll', update, { passive: true });
-    return () => window.removeEventListener('scroll', update);
-  }, []);
-
-  return active;
-}
 
 function scrollTo(id: string) {
   document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });

@@ -17,11 +17,14 @@ interface ProjectDetailPageProps {
 
 export default async function ProjectDetailPage({ params }: ProjectDetailPageProps) {
   const { slug } = await params;
-  const [project, allPosts] = await Promise.all([getProjectDetail(slug), getPublishedPosts()]);
+  const project = await getProjectDetail(slug);
 
   if (!project) notFound();
 
-  const relatedPosts = allPosts.filter((p) => project.relatedPostIds.includes(p.id));
+  const relatedPosts =
+    project.relatedPostIds.length > 0
+      ? (await getPublishedPosts()).filter((p) => project.relatedPostIds.includes(p.id))
+      : [];
 
   return (
     <div className="min-h-screen bg-background">

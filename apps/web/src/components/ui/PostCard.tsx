@@ -24,9 +24,7 @@ export function PostCard({ post }: { post: PostListItem }) {
             sizes="168px"
             className="object-cover"
           />
-        ) : (
-          <div className="h-full w-full bg-gradient-to-br from-stone-200 to-stone-300" />
-        )}
+        ) : null}
       </div>
       <div className="flex-1 min-w-0">
         <p className="font-spectral font-bold text-[16px] text-foreground group-hover:text-olive transition-colors">

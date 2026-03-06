@@ -9,15 +9,13 @@ interface PostsSectionProps {
 }
 
 export function PostsSection({ posts }: PostsSectionProps) {
-  const visible = posts.slice(0, 3);
-
   return (
     <section id="posts" className="mt-16">
       <h2 className="font-spectral font-bold text-[19px] text-foreground mb-7">Últimos posts</h2>
 
-      {visible.length > 0 ? (
+      {posts.length > 0 ? (
         <div className="space-y-9">
-          {visible.map((post) => (
+          {posts.slice(0, 3).map((post) => (
             <PostCard key={post.id} post={post} />
           ))}
         </div>
