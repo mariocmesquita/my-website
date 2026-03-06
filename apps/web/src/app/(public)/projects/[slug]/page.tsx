@@ -5,8 +5,10 @@ import { notFound } from 'next/navigation';
 
 import { Navbar } from '@/components/layout/Navbar';
 import { TechBadge } from '@/components/ui/TechBadge';
+import { getPublishedPosts } from '@/lib/post';
 import { getProjectDetail } from '@/lib/project';
 
+import { RelatedPosts } from './RelatedPosts';
 import { ScreenshotsLightbox } from './ScreenshotsLightbox';
 
 interface ProjectDetailPageProps {
@@ -15,9 +17,11 @@ interface ProjectDetailPageProps {
 
 export default async function ProjectDetailPage({ params }: ProjectDetailPageProps) {
   const { slug } = await params;
-  const project = await getProjectDetail(slug);
+  const [project, allPosts] = await Promise.all([getProjectDetail(slug), getPublishedPosts()]);
 
   if (!project) notFound();
+
+  const relatedPosts = allPosts.filter((p) => project.relatedPostIds.includes(p.id));
 
   return (
     <div className="min-h-screen bg-background">
@@ -95,15 +99,7 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
         {/* Screenshots */}
         <ScreenshotsLightbox project={project} />
 
-        {/* Posts relacionados — placeholder */}
-        <section className="mt-16 pt-10 border-t border-brand/10">
-          <p className="font-sans text-[11px] uppercase tracking-[0.14em] text-foreground/40 mb-3">
-            Posts relacionados
-          </p>
-          <p className="font-sans text-[14px] text-foreground/40 italic">
-            Em breve — posts sobre este projeto e decisões técnicas.
-          </p>
-        </section>
+        {relatedPosts.length > 0 && <RelatedPosts posts={relatedPosts} />}
       </div>
     </div>
   );

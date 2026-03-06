@@ -1,11 +1,13 @@
 'use client';
 
+import { CodeBlockLowlight } from '@tiptap/extension-code-block-lowlight';
 import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
 import { Table, TableCell, TableHeader, TableRow } from '@tiptap/extension-table';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
+import { common, createLowlight } from 'lowlight';
 import {
   Bold,
   Code,
@@ -22,6 +24,10 @@ import {
 import { Markdown } from 'tiptap-markdown';
 
 import { cn } from '@/lib/utils';
+
+import styles from './MarkdownEditor.module.css';
+
+const lowlight = createLowlight(common);
 
 interface MarkdownEditorProps {
   value: string;
@@ -40,7 +46,8 @@ export function MarkdownEditor({
 }: MarkdownEditorProps) {
   const editor = useEditor({
     extensions: [
-      StarterKit.configure({ link: false }),
+      StarterKit.configure({ link: false, codeBlock: false }),
+      CodeBlockLowlight.configure({ lowlight }),
       Placeholder.configure({ placeholder: placeholder ?? 'Escreva seu post aqui...' }),
       Link.configure({ openOnClick: false, linkOnPaste: true }),
       Image,
@@ -200,26 +207,8 @@ export function MarkdownEditor({
         <div
           className={cn(
             borderless && 'flex-1 overflow-auto',
-            `bg-background px-5 py-4
-            [&_.ProseMirror]:outline-none
-            [&_.ProseMirror_h1]:font-spectral [&_.ProseMirror_h1]:text-2xl [&_.ProseMirror_h1]:font-bold [&_.ProseMirror_h1]:text-foreground [&_.ProseMirror_h1]:mt-6 [&_.ProseMirror_h1]:mb-3
-            [&_.ProseMirror_h2]:font-spectral [&_.ProseMirror_h2]:text-xl [&_.ProseMirror_h2]:font-bold [&_.ProseMirror_h2]:text-foreground [&_.ProseMirror_h2]:mt-5 [&_.ProseMirror_h2]:mb-2
-            [&_.ProseMirror_h3]:text-base [&_.ProseMirror_h3]:font-semibold [&_.ProseMirror_h3]:text-foreground [&_.ProseMirror_h3]:mt-4 [&_.ProseMirror_h3]:mb-2
-            [&_.ProseMirror_p]:mb-3 [&_.ProseMirror_p]:leading-relaxed [&_.ProseMirror_p]:text-foreground
-            [&_.ProseMirror_ul]:list-disc [&_.ProseMirror_ul]:pl-5 [&_.ProseMirror_ul]:mb-3
-            [&_.ProseMirror_ol]:list-decimal [&_.ProseMirror_ol]:pl-5 [&_.ProseMirror_ol]:mb-3
-            [&_.ProseMirror_li]:mb-1
-            [&_.ProseMirror_blockquote]:border-l-4 [&_.ProseMirror_blockquote]:border-brand/40 [&_.ProseMirror_blockquote]:pl-4 [&_.ProseMirror_blockquote]:italic [&_.ProseMirror_blockquote]:text-muted-foreground [&_.ProseMirror_blockquote]:mb-3
-            [&_.ProseMirror_code:not(pre_code)]:bg-muted [&_.ProseMirror_code:not(pre_code)]:px-1.5 [&_.ProseMirror_code:not(pre_code)]:py-0.5 [&_.ProseMirror_code:not(pre_code)]:rounded [&_.ProseMirror_code:not(pre_code)]:text-sm [&_.ProseMirror_code:not(pre_code)]:font-mono
-            [&_.ProseMirror_pre]:bg-muted [&_.ProseMirror_pre]:rounded-lg [&_.ProseMirror_pre]:p-4 [&_.ProseMirror_pre]:overflow-x-auto [&_.ProseMirror_pre]:mb-3 [&_.ProseMirror_pre_code]:bg-transparent [&_.ProseMirror_pre_code]:p-0 [&_.ProseMirror_pre_code]:text-sm [&_.ProseMirror_pre_code]:font-mono
-            [&_.ProseMirror_a]:text-olive [&_.ProseMirror_a]:underline [&_.ProseMirror_a]:underline-offset-2
-            [&_.ProseMirror_img]:rounded-lg [&_.ProseMirror_img]:max-w-full [&_.ProseMirror_img]:my-3
-            [&_.ProseMirror_hr]:border-border [&_.ProseMirror_hr]:my-4
-            [&_.ProseMirror_table]:w-full [&_.ProseMirror_table]:border-collapse [&_.ProseMirror_table]:mb-3
-            [&_.ProseMirror_th]:border [&_.ProseMirror_th]:border-border [&_.ProseMirror_th]:bg-muted [&_.ProseMirror_th]:px-3 [&_.ProseMirror_th]:py-2 [&_.ProseMirror_th]:text-left [&_.ProseMirror_th]:text-sm [&_.ProseMirror_th]:font-medium
-            [&_.ProseMirror_td]:border [&_.ProseMirror_td]:border-border [&_.ProseMirror_td]:px-3 [&_.ProseMirror_td]:py-2 [&_.ProseMirror_td]:text-sm
-            [&_.ProseMirror_.is-editor-empty]:before:float-left [&_.ProseMirror_.is-editor-empty]:before:content-[attr(data-placeholder)] [&_.ProseMirror_.is-editor-empty]:before:text-muted-foreground/50 [&_.ProseMirror_.is-editor-empty]:before:pointer-events-none [&_.ProseMirror_.is-editor-empty]:before:h-0
-          `,
+            'bg-background px-5 py-4',
+            styles.editor,
           )}
         >
           <EditorContent editor={editor} />

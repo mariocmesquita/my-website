@@ -24,8 +24,8 @@ export class ProjectRepository {
     });
   }
 
-  findPublishedDetail(slug: string) {
-    return this.prisma.project.findFirst({
+  async findPublishedDetail(slug: string) {
+    const project = await this.prisma.project.findFirst({
       where: { slug, archived: false, publishDate: { lte: new Date() } },
       select: {
         id: true,
@@ -38,8 +38,12 @@ export class ProjectRepository {
         screenshots: true,
         githubLink: true,
         publishDate: true,
+        posts: { select: { postId: true } },
       },
     });
+    if (!project) return null;
+    const { posts, ...rest } = project;
+    return { ...rest, relatedPostIds: posts.map((p) => p.postId) };
   }
 
   async findAll() {

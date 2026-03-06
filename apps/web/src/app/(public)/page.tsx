@@ -7,14 +7,16 @@ import { PostsSection } from '@/components/sections/PostsSection';
 import { ProjectsSection } from '@/components/sections/ProjectsSection';
 import { BackToTopButton } from '@/components/ui/BackToTopButton';
 import { getCareerData } from '@/lib/career';
+import { getPublishedPosts } from '@/lib/post';
 import { getProfileData } from '@/lib/profile';
 import { getPublishedProjects } from '@/lib/project';
 
 export default async function Home() {
-  const [profile, careers, projects] = await Promise.all([
+  const [profile, careers, projects, posts] = await Promise.all([
     getProfileData(),
     getCareerData(),
     getPublishedProjects(),
+    getPublishedPosts(),
   ]);
 
   return (
@@ -29,7 +31,7 @@ export default async function Home() {
           <AboutSection profile={profile} />
           <CareerSection entries={careers} />
           <ProjectsSection projects={projects} />
-          <PostsSection />
+          <PostsSection posts={posts} />
           <Footer />
         </main>
       </div>

@@ -21,6 +21,7 @@ export const ProjectDetailSchema = z.object({
   screenshots: z.array(z.string()),
   githubLink: z.string().nullable(),
   publishDate: z.string(),
+  relatedPostIds: z.array(z.string()).default([]),
 });
 
 export const ProjectAdminSchema = z.object({
