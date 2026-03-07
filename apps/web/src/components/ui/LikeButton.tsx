@@ -45,7 +45,9 @@ export function LikeButton({ slug, initialLikesCount, initialLiked }: LikeButton
         .filter(Boolean)
         .join(' ')}
     >
-      <Heart className={['w-4 h-4 transition-all', liked ? 'fill-brand text-brand' : ''].join(' ')} />
+      <Heart
+        className={['w-4 h-4 transition-all', liked ? 'fill-brand text-brand' : ''].join(' ')}
+      />
       <span>{likesCount}</span>
     </button>
   );

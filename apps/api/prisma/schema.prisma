@@ -105,3 +105,17 @@ model Profile {
 
     @@map("profiles")
 }
+
+model AppLog {
+    id        String   @id @db.Uuid
+    level     String   @db.VarChar(20)
+    eventType String   @map("event_type") @db.VarChar(50)
+    message   String   @db.Text
+    ip        String?  @db.VarChar(100)
+    method    String?  @db.VarChar(10)
+    path      String?  @db.VarChar(500)
+    userAgent String?  @map("user_agent") @db.VarChar(500)
+    createdAt DateTime @default(now()) @map("created_at")
+
+    @@map("app_logs")
+}

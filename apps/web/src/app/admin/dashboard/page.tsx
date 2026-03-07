@@ -1,10 +1,12 @@
 import { getSession } from '@/server/session';
 
+import { DashboardPageClient } from './DashboardPageClient';
+
 export default async function DashboardPage() {
   const session = await getSession();
 
   return (
-    <div className="max-w-2xl">
+    <div className="max-w-5xl">
       <h1 className="font-spectral mb-2 text-3xl font-bold text-foreground">Dashboard</h1>
       <p className="mb-8 text-foreground">
         Bem-vindo, <span className="font-semibold">{session?.email ?? session?.uid}</span>!
@@ -23,6 +25,8 @@ export default async function DashboardPage() {
           </div>
         </dl>
       </div>
+
+      <DashboardPageClient />
     </div>
   );
 }

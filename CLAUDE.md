@@ -18,18 +18,24 @@ Personal website monorepo (Turborepo + pnpm): `apps/api` (NestJS), `apps/web` (N
 
 **Stack**: NestJS · Prisma 7 · PostgreSQL · Firebase Auth · Zod · UUIDv7
 
-**Architecture** — one folder per feature under `src/modules/<feature>/`:
+**Architecture**:
 
-- `controller.ts` — HTTP routing + input validation only
-- `service.ts` — business logic
-- `repository.ts` — Prisma queries
-- `module.ts` — NestJS wiring
+- Feature modules: `src/modules/<feature>/` — `controller.ts`, `service.ts`, `repository.ts`, `module.ts`
+- Infrastructure: `src/common/` — `prisma/`, `firebase/`, `log/`, `guards/`, `filters/`
+
+**Infrastructure details**:
+
+- `PrismaModule` — `@Global()`, provides `PrismaService` everywhere
+- `LogModule` — `@Global()`, provides `LogService` everywhere; `GET /logs` (auth-guarded, paginated)
+- `FirebaseModule` — provides `FirebaseAuthGuard` + `FirebaseService`
+- `AllExceptionsFilter` — global `APP_FILTER`; logs 500+ errors as `level: error`, `eventType: INTERNAL_ERROR`
+- `AppThrottlerGuard` — global `APP_GUARD`; logs rate limit hits as `level: security`, `eventType: RATE_LIMIT`
+- `FirebaseAuthGuard` — per-endpoint `@UseGuards`; logs auth failures as `level: security`, `eventType: AUTH_FAILURE`
 
 **Key rules**:
 
 - Functional programming, `readonly` on class properties
 - Zod validates all incoming payloads; errors in PT-BR
-- Firebase Auth guard (`common/guards/firebase-auth.guard.ts`) protects private endpoints — no roles, authenticated or not
 - All IDs: UUIDv7
 - Prisma 7: generator is `prisma-client`; import from `'../../generated/prisma/client'`
 - CORS enabled in `main.ts`
@@ -46,7 +52,7 @@ Personal website monorepo (Turborepo + pnpm): `apps/api` (NestJS), `apps/web` (N
 src/
 ├── app/
 │   ├── (public)/          # Public pages (landing, project detail, blog)
-│   ├── (admin)/           # Protected admin (dashboard, profile, career, projects, posts)
+│   ├── admin/             # Protected admin (dashboard, career, projects, posts, profile)
 │   ├── auth/sign-in/
 │   ├── api/auth/session/  # iron-session POST/DELETE
 │   └── providers.tsx      # QueryClientProvider + Toaster
@@ -55,8 +61,8 @@ src/
 │   ├── layout/            # Sidebar, Navbar
 │   ├── sections/          # AboutSection, CareerSection, ProjectsSection, PostsSection
 │   └── ui/                # TechBadge, ProjectCard, shadcn components
-├── hooks/                 # useZodForm, useProfile, useCareer, useProjects, usePosts
-├── http/                  # Pure client fetch functions (auth, profile, career, project, post)
+├── hooks/                 # useZodForm, useProfile, useCareer, useProjects, usePosts, useLogs
+├── http/                  # Pure client fetch functions (auth, profile, career, project, post, log)
 ├── server/                # Server-side fetch + DAL (session, profile, career, project, post)
 └── proxy.ts               # Route protection (Node.js runtime, replaces middleware.ts)
 ```
@@ -69,7 +75,7 @@ src/
 - Admin pages pattern (sheet): Server Component page → `*PageClient.tsx` (React Query + state) → `*Sheet.tsx` → `*Form.tsx` + field components
 - Admin pages pattern (dedicated page): for complex forms — `page.tsx` → `*PageClient.tsx` (list) → `/new/page.tsx` + `/[id]/edit/page.tsx` → `*Editor.tsx` (e.g. posts)
 - File uploads: use `<label htmlFor>` to trigger hidden inputs — `inputRef.click()` is blocked inside dialogs
-- Route protection: `proxy.ts` protects `/dashboard`, `/profile`, `/career`, `/projects`, `/posts`
+- Route protection: `proxy.ts` protects `/admin`
 
 **Component decomposition**: split when a component has distinct visual sections, mixed concerns, or reusable pieces. State lives as close to use as possible. Parent = orchestrator only.
 
@@ -77,9 +83,9 @@ src/
 
 ## Shared Packages
 
-**`@my-website/env`** — env validation via `@t3-oss/env-nextjs`. `index.ts` for API, `web.ts` for Next.js.
+**`@my-website/env`** — env validation via `@t3-oss/env-nextjs`. Single `index.ts` used by both apps.
 
-**`@my-website/schemas`** — shared Zod schemas between frontend and backend. Add schemas here for any resource shared across apps. Current exports: Profile, Career, Project, Post (list item, detail, admin, create, update schemas).
+**`@my-website/schemas`** — shared Zod schemas. Current exports: Profile, Career, Project, Post (list item, detail, admin, create, update), Log (entry, list response).
 
 ---
 

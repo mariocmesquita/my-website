@@ -9,7 +9,8 @@
     "./profile": "./src/profile.ts",
     "./career": "./src/career.ts",
     "./project": "./src/project.ts",
-    "./post": "./src/post.ts"
+    "./post": "./src/post.ts",
+    "./log": "./src/log.ts"
   },
   "devDependencies": {
     "@my-website/typescript-config": "workspace:*"
