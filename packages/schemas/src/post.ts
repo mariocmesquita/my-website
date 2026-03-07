@@ -9,6 +9,7 @@ export const PostListItemSchema = z.object({
   techStack: z.array(z.string()),
   bannerImage: z.string().nullable(),
   publishDate: z.string().nullable(),
+  likesCount: z.number(),
 });
 
 export const PostDetailSchema = z.object({
@@ -22,6 +23,8 @@ export const PostDetailSchema = z.object({
   bannerImage: z.string().nullable(),
   publishDate: z.string().nullable(),
   relatedProjectIds: z.array(z.string()),
+  likesCount: z.number(),
+  viewer: z.object({ liked: z.boolean() }),
 });
 
 export const PostAdminSchema = z.object({

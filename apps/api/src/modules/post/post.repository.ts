@@ -9,7 +9,7 @@ export class PostRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async findPublishedList() {
-    return this.prisma.post.findMany({
+    const posts = await this.prisma.post.findMany({
       where: {
         status: 'published',
         OR: [{ publishDate: null }, { publishDate: { lte: new Date() } }],
@@ -24,11 +24,13 @@ export class PostRepository {
         techStack: true,
         bannerImage: true,
         publishDate: true,
+        _count: { select: { likes: true } },
       },
     });
+    return posts.map(({ _count, ...rest }) => ({ ...rest, likesCount: _count.likes }));
   }
 
-  async findPublishedDetail(slug: string) {
+  async findPublishedDetail(slug: string, visitorId?: string) {
     const post = await this.prisma.post.findFirst({
       where: {
         slug,
@@ -46,11 +48,48 @@ export class PostRepository {
         bannerImage: true,
         publishDate: true,
         projects: { select: { projectId: true } },
+        _count: { select: { likes: true } },
       },
     });
     if (!post) return null;
-    const { projects, ...rest } = post;
-    return { ...rest, relatedProjectIds: projects.map((p) => p.projectId) };
+
+    let viewerLiked = false;
+    if (visitorId) {
+      const like = await this.prisma.postLike.findUnique({
+        where: { postId_visitorId: { postId: post.id, visitorId } },
+        select: { postId: true },
+      });
+      viewerLiked = !!like;
+    }
+
+    const { projects, _count, ...rest } = post;
+    return {
+      ...rest,
+      relatedProjectIds: projects.map((p) => p.projectId),
+      likesCount: _count.likes,
+      viewer: { liked: viewerLiked },
+    };
+  }
+
+  findPublishedId(slug: string) {
+    return this.prisma.post.findFirst({
+      where: {
+        slug,
+        status: 'published',
+        OR: [{ publishDate: null }, { publishDate: { lte: new Date() } }],
+      },
+      select: { id: true },
+    });
+  }
+
+  async likePost(postId: string, visitorId: string): Promise<{ likesCount: number }> {
+    try {
+      await this.prisma.postLike.create({ data: { id: uuidv7(), postId, visitorId } });
+    } catch {
+      // Violação de constraint unique — already liked, idempotente
+    }
+    const count = await this.prisma.postLike.count({ where: { postId } });
+    return { likesCount: count };
   }
 
   async findAll() {

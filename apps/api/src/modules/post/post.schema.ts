@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 export {
   PostListItemSchema,
   PostDetailSchema,
@@ -10,3 +12,9 @@ export {
   type CreatePostInput,
   type UpdatePostInput,
 } from '@my-website/schemas/post';
+
+export const LikePostSchema = z.object({
+  visitorId: z.string().min(1, 'Identificador do visitante é obrigatório.'),
+});
+
+export type LikePostInput = z.infer<typeof LikePostSchema>;

@@ -4,6 +4,7 @@ import {
   Controller,
   Delete,
   Get,
+  Headers,
   HttpCode,
   HttpStatus,
   Param,
@@ -17,7 +18,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 
 import { FirebaseAuthGuard } from '@common/guards/firebase-auth.guard';
-import { CreatePostSchema, UpdatePostSchema } from './post.schema';
+import { CreatePostSchema, LikePostSchema, UpdatePostSchema } from './post.schema';
 import { PostService } from './post.service';
 
 @Controller('posts')
@@ -49,9 +50,21 @@ export class PostController {
 
   @Get(':slug')
   @HttpCode(HttpStatus.OK)
-  async getPostDetail(@Param('slug') slug: string) {
-    const post = await this.postService.getPublishedDetail(slug);
+  async getPostDetail(@Param('slug') slug: string, @Headers('x-visitor-id') visitorId?: string) {
+    const post = await this.postService.getPublishedDetail(slug, visitorId);
     return { data: post, message: 'Post obtido com sucesso.' };
+  }
+
+  @Post(':slug/like')
+  @HttpCode(HttpStatus.OK)
+  async likePost(@Param('slug') slug: string, @Body() body: unknown) {
+    const result = LikePostSchema.safeParse(body);
+    if (!result.success) {
+      const message = result.error.issues.map((e) => e.message).join(', ');
+      throw new BadRequestException(message);
+    }
+    const { likesCount } = await this.postService.likePost(slug, result.data.visitorId);
+    return { data: { likesCount, liked: true }, message: 'Post curtido com sucesso.' };
   }
 
   @Post('upload')

@@ -28,10 +28,16 @@ export class PostService {
     return this.postRepository.findPublishedList();
   }
 
-  async getPublishedDetail(slug: string) {
-    const post = await this.postRepository.findPublishedDetail(slug);
+  async getPublishedDetail(slug: string, visitorId?: string) {
+    const post = await this.postRepository.findPublishedDetail(slug, visitorId);
     if (!post) throw new NotFoundException('Post não encontrado.');
     return post;
+  }
+
+  async likePost(slug: string, visitorId: string) {
+    const post = await this.postRepository.findPublishedId(slug);
+    if (!post) throw new NotFoundException('Post não encontrado.');
+    return this.postRepository.likePost(post.id, visitorId);
   }
 
   getAll() {
