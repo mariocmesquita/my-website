@@ -16,6 +16,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { Throttle } from '@nestjs/throttler';
 
 import { FirebaseAuthGuard } from '@common/guards/firebase-auth.guard';
 import { CreatePostSchema, LikePostSchema, UpdatePostSchema } from './post.schema';
@@ -57,6 +58,7 @@ export class PostController {
 
   @Post(':slug/like')
   @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { ttl: 60000, limit: 5 } })
   async likePost(@Param('slug') slug: string, @Body() body: unknown) {
     const result = LikePostSchema.safeParse(body);
     if (!result.success) {
