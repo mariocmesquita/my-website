@@ -36,7 +36,7 @@ export function PostCard({ post }: { post: PostListItem }) {
         <div className="flex items-center gap-5 mt-2.5 font-sans text-[12px] text-foreground/60">
           {formattedDate && <span>{formattedDate}</span>}
           <span className="flex items-center gap-1">
-            <Heart className="w-3.5 h-3.5" />0
+            <Heart className="w-3.5 h-3.5" />{post.likesCount}
           </span>
           <span className="flex items-center gap-1">
             <MessageCircle className="w-3.5 h-3.5" />0

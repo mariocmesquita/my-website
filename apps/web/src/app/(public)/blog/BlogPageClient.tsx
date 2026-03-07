@@ -270,7 +270,7 @@ function BlogGridCard({ post }: { post: PostListItem }) {
             </div>
             <div className="flex items-center gap-3 shrink-0 ml-2">
               <span className="flex items-center gap-1">
-                <Heart className="w-3 h-3" />0
+                <Heart className="w-3 h-3" />{post.likesCount}
               </span>
               <span className="flex items-center gap-1">
                 <MessageCircle className="w-3 h-3" />0
