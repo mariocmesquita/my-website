@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import { Navbar } from '@/components/layout/Navbar';
+import { LikeButton } from '@/components/ui/LikeButton';
 import { TechBadge } from '@/components/ui/TechBadge';
 import { getPostDetail } from '@/server/post';
 import { getPublishedProjects } from '@/server/project';
@@ -70,7 +71,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
             {post.summary}
           </p>
 
-          <div className="flex flex-wrap gap-4">
+          <div className="flex flex-wrap items-center gap-4">
             {post.tags.length > 0 && (
               <div className="flex flex-wrap gap-1.5">
                 {post.tags.map((tag) => (
@@ -83,6 +84,11 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
                 ))}
               </div>
             )}
+            <LikeButton
+              slug={post.slug}
+              initialLikesCount={post.likesCount}
+              initialLiked={post.viewer.liked}
+            />
           </div>
         </header>
 

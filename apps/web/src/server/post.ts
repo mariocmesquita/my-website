@@ -5,6 +5,7 @@ import {
   type PostListItem,
   PostListItemSchema,
 } from '@my-website/schemas/post';
+import { cookies } from 'next/headers';
 import { z } from 'zod';
 
 export async function getPublishedPosts(): Promise<PostListItem[]> {
@@ -26,8 +27,12 @@ export async function getPublishedPosts(): Promise<PostListItem[]> {
 
 export async function getPostDetail(slug: string): Promise<PostDetail | null> {
   try {
+    const cookieStore = await cookies();
+    const visitorId = cookieStore.get('mw_visitor_id')?.value;
+
     const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/posts/${slug}`, {
-      next: { revalidate: 60 },
+      cache: 'no-store',
+      headers: visitorId ? { 'x-visitor-id': visitorId } : {},
     });
     if (response.status === 404) return null;
     if (!response.ok) {
