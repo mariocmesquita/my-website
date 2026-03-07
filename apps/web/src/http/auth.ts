@@ -1,8 +1,8 @@
-export async function postSession(uid: string, email: string | null): Promise<void> {
+export async function postSession(idToken: string): Promise<void> {
   const response = await fetch('/api/auth/session', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ uid, email }),
+    body: JSON.stringify({ idToken }),
   });
 
   if (!response.ok) {

@@ -1,10 +1,19 @@
 import { env } from '@my-website/env';
 import { NextRequest, NextResponse } from 'next/server';
 
+import { validateCsrfOrigin } from '@/server/csrf';
+
 const VISITOR_COOKIE = 'mw_visitor_id';
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 365; // 1 ano
 
-export async function POST(request: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ slug: string }> },
+) {
+  if (!validateCsrfOrigin(request)) {
+    return NextResponse.json({ message: 'Origem inválida.' }, { status: 403 });
+  }
+
   const { slug } = await params;
 
   const visitorId = request.cookies.get(VISITOR_COOKIE)?.value ?? crypto.randomUUID();
@@ -24,6 +33,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
   response.cookies.set(VISITOR_COOKIE, visitorId, {
     httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
     maxAge: COOKIE_MAX_AGE,
     path: '/',

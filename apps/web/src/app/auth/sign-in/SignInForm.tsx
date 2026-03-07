@@ -49,7 +49,8 @@ export function SignInForm() {
         values.password,
       );
 
-      await postSession(credential.user.uid, credential.user.email);
+      const idToken = await credential.user.getIdToken();
+      await postSession(idToken);
 
       toast.success('Login realizado com sucesso!');
       router.push(next);
