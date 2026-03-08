@@ -1,6 +1,9 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { type Career, type CareerTranslation } from '@generated/prisma';
 
 import {
+  type CareerRow,
+  type CareerTranslationRow,
   type CreateCareerInput,
   type UpdateCareerInput,
   type UpsertCareerTranslationInput,
@@ -13,20 +16,20 @@ export class CareerService {
 
   constructor(private readonly careerRepository: CareerRepository) {}
 
-  getCareers(locale = 'en') {
+  getCareers(locale = 'en'): Promise<CareerRow[]> {
     return this.careerRepository.findAll(locale);
   }
 
-  getCareersAdmin() {
+  getCareersAdmin(): Promise<CareerRow[]> {
     return this.careerRepository.findAllAdmin();
   }
 
-  async createCareer(data: CreateCareerInput) {
+  async createCareer(data: CreateCareerInput): Promise<Career> {
     this.logger.log('Criando entrada de carreira.');
     return this.careerRepository.create(data);
   }
 
-  async updateCareer(id: string, data: UpdateCareerInput) {
+  async updateCareer(id: string, data: UpdateCareerInput): Promise<Career> {
     this.logger.log(`Atualizando carreira: ${id}`);
     try {
       return await this.careerRepository.update(id, data);
@@ -44,11 +47,15 @@ export class CareerService {
     }
   }
 
-  async getTranslation(id: string, locale: string) {
+  async getTranslation(id: string, locale: string): Promise<CareerTranslationRow> {
     return this.careerRepository.findTranslation(id, locale);
   }
 
-  async upsertTranslation(id: string, locale: string, data: UpsertCareerTranslationInput) {
+  async upsertTranslation(
+    id: string,
+    locale: string,
+    data: UpsertCareerTranslationInput,
+  ): Promise<CareerTranslation> {
     this.logger.log(`Salvando tradução de carreira ${id}: ${locale}`);
     return this.careerRepository.upsertTranslation(id, locale, data);
   }

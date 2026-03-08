@@ -15,17 +15,27 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+import { type ProjectTranslation } from '@generated/prisma';
 import { FileInterceptor } from '@nestjs/platform-express';
 
+import { ApiResponse } from '@common/api-response';
 import { FirebaseAuthGuard } from '@common/guards/firebase-auth.guard';
+import { isValidLocale, resolveLocale } from '@common/locales';
+import { ZodValidationPipe } from '@common/pipes/zod-validation.pipe';
 import {
   CreateProjectSchema,
   UpdateProjectSchema,
   UpsertProjectTranslationSchema,
+  type CreateProjectInput,
+  type ProjectAdminRow,
+  type ProjectDetailRow,
+  type ProjectListRow,
+  type ProjectTranslationRow,
+  type ProjectWithRelations,
+  type UpdateProjectInput,
+  type UpsertProjectTranslationInput,
 } from './project.schema';
 import { ProjectService } from './project.service';
-
-const SUPPORTED_LOCALES = ['en', 'pt'];
 
 @Controller('projects')
 export class ProjectController {
@@ -33,8 +43,8 @@ export class ProjectController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  async getPublishedList(@Query('locale') locale?: string) {
-    const resolvedLocale = SUPPORTED_LOCALES.includes(locale ?? '') ? locale! : 'en';
+  async getPublishedList(@Query('locale') locale?: string): Promise<ApiResponse<ProjectListRow[]>> {
+    const resolvedLocale = resolveLocale(locale);
     const projects = await this.projectService.getPublishedList(resolvedLocale);
     return { data: projects, message: 'Projetos obtidos com sucesso.' };
   }
@@ -42,7 +52,7 @@ export class ProjectController {
   @Get('admin')
   @HttpCode(HttpStatus.OK)
   @UseGuards(FirebaseAuthGuard)
-  async getAllProjects() {
+  async getAllProjects(): Promise<ApiResponse<ProjectAdminRow[]>> {
     const projects = await this.projectService.getAll();
     return { data: projects, message: 'Projetos obtidos com sucesso.' };
   }
@@ -50,15 +60,18 @@ export class ProjectController {
   @Get('admin/:id')
   @HttpCode(HttpStatus.OK)
   @UseGuards(FirebaseAuthGuard)
-  async getProjectById(@Param('id') id: string) {
+  async getProjectById(@Param('id') id: string): Promise<ApiResponse<ProjectWithRelations>> {
     const project = await this.projectService.getById(id);
     return { data: project, message: 'Projeto obtido com sucesso.' };
   }
 
   @Get(':slug')
   @HttpCode(HttpStatus.OK)
-  async getProjectDetail(@Param('slug') slug: string, @Query('locale') locale?: string) {
-    const resolvedLocale = SUPPORTED_LOCALES.includes(locale ?? '') ? locale! : 'en';
+  async getProjectDetail(
+    @Param('slug') slug: string,
+    @Query('locale') locale?: string,
+  ): Promise<ApiResponse<ProjectDetailRow>> {
+    const resolvedLocale = resolveLocale(locale);
     const project = await this.projectService.getPublishedDetail(slug, resolvedLocale);
     return { data: project, message: 'Projeto obtido com sucesso.' };
   }
@@ -67,7 +80,10 @@ export class ProjectController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(FirebaseAuthGuard)
   @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 5 * 1024 * 1024 } }))
-  async uploadFile(@UploadedFile() file: Express.Multer.File, @Query('type') type: string) {
+  async uploadFile(
+    @UploadedFile() file: Express.Multer.File,
+    @Query('type') type: string,
+  ): Promise<ApiResponse<{ url: string }>> {
     if (!file) throw new BadRequestException('Arquivo não enviado.');
 
     const ALLOWED_MIMETYPES = ['image/jpeg', 'image/png', 'image/webp'];
@@ -88,40 +104,38 @@ export class ProjectController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(FirebaseAuthGuard)
-  async createProject(@Body() body: unknown) {
-    const result = CreateProjectSchema.safeParse(body);
-    if (!result.success) {
-      const message = result.error.issues.map((e) => e.message).join(', ');
-      throw new BadRequestException(message);
-    }
-    const project = await this.projectService.createProject(result.data);
+  async createProject(
+    @Body(new ZodValidationPipe(CreateProjectSchema)) body: CreateProjectInput,
+  ): Promise<ApiResponse<ProjectWithRelations>> {
+    const project = await this.projectService.createProject(body);
     return { data: project, message: 'Projeto criado com sucesso.' };
   }
 
   @Patch(':id')
   @HttpCode(HttpStatus.OK)
   @UseGuards(FirebaseAuthGuard)
-  async updateProject(@Param('id') id: string, @Body() body: unknown) {
-    const result = UpdateProjectSchema.safeParse(body);
-    if (!result.success) {
-      const message = result.error.issues.map((e) => e.message).join(', ');
-      throw new BadRequestException(message);
-    }
-    const project = await this.projectService.updateProject(id, result.data);
+  async updateProject(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(UpdateProjectSchema)) body: UpdateProjectInput,
+  ): Promise<ApiResponse<ProjectWithRelations>> {
+    const project = await this.projectService.updateProject(id, body);
     return { data: project, message: 'Projeto atualizado com sucesso.' };
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(FirebaseAuthGuard)
-  async deleteProject(@Param('id') id: string) {
+  async deleteProject(@Param('id') id: string): Promise<void> {
     await this.projectService.deleteProject(id);
   }
 
   @Get(':id/translations/:locale')
   @HttpCode(HttpStatus.OK)
   @UseGuards(FirebaseAuthGuard)
-  async getTranslation(@Param('id') id: string, @Param('locale') locale: string) {
+  async getTranslation(
+    @Param('id') id: string,
+    @Param('locale') locale: string,
+  ): Promise<ApiResponse<ProjectTranslationRow>> {
     const translation = await this.projectService.getTranslation(id, locale);
     return { data: translation, message: 'Tradução obtida com sucesso.' };
   }
@@ -132,15 +146,11 @@ export class ProjectController {
   async upsertTranslation(
     @Param('id') id: string,
     @Param('locale') locale: string,
-    @Body() body: unknown,
-  ) {
-    if (!SUPPORTED_LOCALES.includes(locale)) throw new BadRequestException('Locale inválido.');
-    const result = UpsertProjectTranslationSchema.safeParse(body);
-    if (!result.success) {
-      const message = result.error.issues.map((e) => e.message).join(', ');
-      throw new BadRequestException(message);
-    }
-    const translation = await this.projectService.upsertTranslation(id, locale, result.data);
+    @Body(new ZodValidationPipe(UpsertProjectTranslationSchema))
+    body: UpsertProjectTranslationInput,
+  ): Promise<ApiResponse<ProjectTranslation>> {
+    if (!isValidLocale(locale)) throw new BadRequestException('Locale inválido.');
+    const translation = await this.projectService.upsertTranslation(id, locale, body);
     return { data: translation, message: 'Tradução salva com sucesso.' };
   }
 }

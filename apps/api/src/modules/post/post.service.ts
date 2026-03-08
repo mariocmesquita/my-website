@@ -1,4 +1,5 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { type PostTranslation } from '@generated/prisma';
 import { getStorage } from 'firebase-admin/storage';
 import * as path from 'path';
 import { uuidv7 } from 'uuidv7';
@@ -6,6 +7,11 @@ import { uuidv7 } from 'uuidv7';
 import { env } from '@my-website/env';
 import {
   type CreatePostInput,
+  type PostAdminRow,
+  type PostDetailRow,
+  type PostListRow,
+  type PostTranslationRow,
+  type PostWithRelations,
   type UpdatePostInput,
   type UpsertPostTranslationInput,
 } from './post.schema';
@@ -28,27 +34,31 @@ export class PostService {
 
   constructor(private readonly postRepository: PostRepository) {}
 
-  getPublishedList(locale = 'en') {
+  getPublishedList(locale = 'en'): Promise<PostListRow[]> {
     return this.postRepository.findPublishedList(locale);
   }
 
-  async getPublishedDetail(slug: string, locale = 'en', visitorId?: string) {
+  async getPublishedDetail(
+    slug: string,
+    locale = 'en',
+    visitorId?: string,
+  ): Promise<PostDetailRow> {
     const post = await this.postRepository.findPublishedDetail(slug, locale, visitorId);
     if (!post) throw new NotFoundException('Post não encontrado.');
     return post;
   }
 
-  async likePost(slug: string, visitorId: string) {
+  async likePost(slug: string, visitorId: string): Promise<{ likesCount: number }> {
     const post = await this.postRepository.findPublishedId(slug);
     if (!post) throw new NotFoundException('Post não encontrado.');
     return this.postRepository.likePost(post.id, visitorId);
   }
 
-  getAll() {
+  getAll(): Promise<PostAdminRow[]> {
     return this.postRepository.findAll();
   }
 
-  async getById(id: string) {
+  async getById(id: string): Promise<PostWithRelations> {
     const post = await this.postRepository.findById(id);
     if (!post) throw new NotFoundException('Post não encontrado.');
     return post;
@@ -65,14 +75,14 @@ export class PostService {
     return `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodedPath}?alt=media`;
   }
 
-  async createPost(data: CreatePostInput) {
+  async createPost(data: CreatePostInput): Promise<PostWithRelations> {
     this.logger.log(`Criando post: ${data.title}`);
     const baseSlug = slugify(data.title);
     const slug = await this.ensureUniqueSlug(baseSlug);
     return this.postRepository.create(data, slug);
   }
 
-  async updatePost(id: string, data: UpdatePostInput) {
+  async updatePost(id: string, data: UpdatePostInput): Promise<PostWithRelations> {
     this.logger.log(`Atualizando post: ${id}`);
     try {
       return await this.postRepository.update(id, data);
@@ -90,11 +100,15 @@ export class PostService {
     }
   }
 
-  async getTranslation(id: string, locale: string) {
+  async getTranslation(id: string, locale: string): Promise<PostTranslationRow> {
     return this.postRepository.findTranslation(id, locale);
   }
 
-  async upsertTranslation(id: string, locale: string, data: UpsertPostTranslationInput) {
+  async upsertTranslation(
+    id: string,
+    locale: string,
+    data: UpsertPostTranslationInput,
+  ): Promise<PostTranslation> {
     this.logger.log(`Salvando tradução de post ${id}: ${locale}`);
     return this.postRepository.upsertTranslation(id, locale, data);
   }

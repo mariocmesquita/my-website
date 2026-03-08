@@ -1,8 +1,11 @@
 import { Injectable } from '@nestjs/common';
+import { type Career, type CareerTranslation } from '@generated/prisma';
 import { uuidv7 } from 'uuidv7';
 
 import { PrismaService } from '@common/prisma/prisma.service';
 import {
+  type CareerRow,
+  type CareerTranslationRow,
   type CreateCareerInput,
   type UpdateCareerInput,
   type UpsertCareerTranslationInput,
@@ -12,7 +15,7 @@ import {
 export class CareerRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll(locale = 'en') {
+  async findAll(locale = 'en'): Promise<CareerRow[]> {
     const careers = await this.prisma.career.findMany({
       orderBy: { startDate: 'desc' },
       include: { translations: { where: { locale } } },
@@ -26,7 +29,7 @@ export class CareerRepository {
     });
   }
 
-  create(data: CreateCareerInput) {
+  create(data: CreateCareerInput): Promise<Career> {
     return this.prisma.career.create({
       data: {
         id: uuidv7(),
@@ -39,7 +42,7 @@ export class CareerRepository {
     });
   }
 
-  update(id: string, data: UpdateCareerInput) {
+  update(id: string, data: UpdateCareerInput): Promise<Career> {
     return this.prisma.career.update({
       where: { id },
       data: {
@@ -52,7 +55,7 @@ export class CareerRepository {
     });
   }
 
-  async findAllAdmin() {
+  async findAllAdmin(): Promise<CareerRow[]> {
     const careers = await this.prisma.career.findMany({
       orderBy: { startDate: 'desc' },
       include: { translations: { where: { locale: 'pt' } } },
@@ -63,11 +66,11 @@ export class CareerRepository {
     }));
   }
 
-  delete(id: string) {
+  delete(id: string): Promise<Career> {
     return this.prisma.career.delete({ where: { id } });
   }
 
-  async findTranslation(id: string, locale: string) {
+  async findTranslation(id: string, locale: string): Promise<CareerTranslationRow> {
     const translation = await this.prisma.careerTranslation.findUnique({
       where: { careerId_locale: { careerId: id, locale } },
     });
@@ -75,7 +78,11 @@ export class CareerRepository {
     return { locale: translation.locale, role: translation.role, content: translation.content };
   }
 
-  async upsertTranslation(id: string, locale: string, data: UpsertCareerTranslationInput) {
+  async upsertTranslation(
+    id: string,
+    locale: string,
+    data: UpsertCareerTranslationInput,
+  ): Promise<CareerTranslation> {
     return this.prisma.careerTranslation.upsert({
       where: { careerId_locale: { careerId: id, locale } },
       create: { id: uuidv7(), careerId: id, locale, ...data },

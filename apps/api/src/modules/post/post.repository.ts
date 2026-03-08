@@ -1,9 +1,15 @@
 import { Injectable } from '@nestjs/common';
+import { type Post, type PostTranslation } from '@generated/prisma';
 import { uuidv7 } from 'uuidv7';
 
 import { PrismaService } from '@common/prisma/prisma.service';
 import {
   type CreatePostInput,
+  type PostAdminRow,
+  type PostDetailRow,
+  type PostListRow,
+  type PostTranslationRow,
+  type PostWithRelations,
   type UpdatePostInput,
   type UpsertPostTranslationInput,
 } from './post.schema';
@@ -12,7 +18,7 @@ import {
 export class PostRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findPublishedList(locale = 'en') {
+  async findPublishedList(locale = 'en'): Promise<PostListRow[]> {
     const posts = await this.prisma.post.findMany({
       where: {
         status: 'published',
@@ -46,7 +52,11 @@ export class PostRepository {
     });
   }
 
-  async findPublishedDetail(slug: string, locale = 'en', visitorId?: string) {
+  async findPublishedDetail(
+    slug: string,
+    locale = 'en',
+    visitorId?: string,
+  ): Promise<PostDetailRow | null> {
     const post = await this.prisma.post.findFirst({
       where: {
         slug,
@@ -101,7 +111,7 @@ export class PostRepository {
     };
   }
 
-  findPublishedId(slug: string) {
+  findPublishedId(slug: string): Promise<{ id: string } | null> {
     return this.prisma.post.findFirst({
       where: {
         slug,
@@ -122,7 +132,7 @@ export class PostRepository {
     return { likesCount: count };
   }
 
-  async findAll() {
+  async findAll(): Promise<PostAdminRow[]> {
     const posts = await this.prisma.post.findMany({
       orderBy: { createdAt: 'desc' },
       include: {
@@ -137,7 +147,7 @@ export class PostRepository {
     }));
   }
 
-  async findById(id: string) {
+  async findById(id: string): Promise<PostWithRelations | null> {
     const post = await this.prisma.post.findUnique({
       where: { id },
       include: { projects: { select: { projectId: true } } },
@@ -147,11 +157,11 @@ export class PostRepository {
     return { ...rest, relatedProjectIds: projects.map((p) => p.projectId) };
   }
 
-  findBySlug(slug: string) {
+  findBySlug(slug: string): Promise<Post | null> {
     return this.prisma.post.findUnique({ where: { slug } });
   }
 
-  async create(data: CreatePostInput, slug: string) {
+  async create(data: CreatePostInput, slug: string): Promise<PostWithRelations> {
     const id = uuidv7();
     const post = await this.prisma.$transaction(async (tx) => {
       const created = await tx.post.create({
@@ -178,7 +188,7 @@ export class PostRepository {
     return { ...post, relatedProjectIds: data.relatedProjectIds };
   }
 
-  async update(id: string, data: UpdatePostInput) {
+  async update(id: string, data: UpdatePostInput): Promise<PostWithRelations> {
     const post = await this.prisma.$transaction(async (tx) => {
       const updated = await tx.post.update({
         where: { id },
@@ -204,11 +214,11 @@ export class PostRepository {
     return { ...post, relatedProjectIds: data.relatedProjectIds };
   }
 
-  delete(id: string) {
+  delete(id: string): Promise<Post> {
     return this.prisma.post.delete({ where: { id } });
   }
 
-  async findTranslation(id: string, locale: string) {
+  async findTranslation(id: string, locale: string): Promise<PostTranslationRow> {
     const translation = await this.prisma.postTranslation.findUnique({
       where: { postId_locale: { postId: id, locale } },
     });
@@ -222,7 +232,11 @@ export class PostRepository {
     };
   }
 
-  async upsertTranslation(id: string, locale: string, data: UpsertPostTranslationInput) {
+  async upsertTranslation(
+    id: string,
+    locale: string,
+    data: UpsertPostTranslationInput,
+  ): Promise<PostTranslation> {
     return this.prisma.postTranslation.upsert({
       where: { postId_locale: { postId: id, locale } },
       create: { id: uuidv7(), postId: id, locale, ...data },
