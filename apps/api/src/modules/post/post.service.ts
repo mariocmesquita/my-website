@@ -4,7 +4,11 @@ import * as path from 'path';
 import { uuidv7 } from 'uuidv7';
 
 import { env } from '@my-website/env';
-import { type CreatePostInput, type UpdatePostInput } from './post.schema';
+import {
+  type CreatePostInput,
+  type UpdatePostInput,
+  type UpsertPostTranslationInput,
+} from './post.schema';
 import { PostRepository } from './post.repository';
 
 function slugify(text: string): string {
@@ -24,12 +28,12 @@ export class PostService {
 
   constructor(private readonly postRepository: PostRepository) {}
 
-  getPublishedList() {
-    return this.postRepository.findPublishedList();
+  getPublishedList(locale = 'en') {
+    return this.postRepository.findPublishedList(locale);
   }
 
-  async getPublishedDetail(slug: string, visitorId?: string) {
-    const post = await this.postRepository.findPublishedDetail(slug, visitorId);
+  async getPublishedDetail(slug: string, locale = 'en', visitorId?: string) {
+    const post = await this.postRepository.findPublishedDetail(slug, locale, visitorId);
     if (!post) throw new NotFoundException('Post não encontrado.');
     return post;
   }
@@ -56,9 +60,7 @@ export class PostService {
     const fileName = `posts/banners/${uuidv7()}${ext}`;
     const bucket = getStorage().bucket(env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET);
     const file = bucket.file(fileName);
-
     await file.save(buffer, { metadata: { contentType: mimetype } });
-
     const encodedPath = encodeURIComponent(fileName);
     return `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodedPath}?alt=media`;
   }
@@ -86,6 +88,15 @@ export class PostService {
     } catch {
       throw new NotFoundException('Post não encontrado.');
     }
+  }
+
+  async getTranslation(id: string, locale: string) {
+    return this.postRepository.findTranslation(id, locale);
+  }
+
+  async upsertTranslation(id: string, locale: string, data: UpsertPostTranslationInput) {
+    this.logger.log(`Salvando tradução de post ${id}: ${locale}`);
+    return this.postRepository.upsertTranslation(id, locale, data);
   }
 
   private async ensureUniqueSlug(base: string): Promise<string> {

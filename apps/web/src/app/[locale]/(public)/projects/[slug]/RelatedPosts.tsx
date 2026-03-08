@@ -1,18 +1,26 @@
 import { type PostListItem } from '@my-website/schemas/post';
 import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
+import { enUS, ptBR } from 'date-fns/locale';
 import Image from 'next/image';
-import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
+
+import { Link } from '@/i18n/navigation';
 
 interface RelatedPostsProps {
   posts: PostListItem[];
+  locale: string;
 }
 
-export function RelatedPosts({ posts }: RelatedPostsProps) {
+export async function RelatedPosts({ posts, locale }: RelatedPostsProps) {
+  const t = await getTranslations();
+
+  const dateFnsLocale = locale === 'pt' ? ptBR : enUS;
+  const datePattern = locale === 'pt' ? "dd 'de' MMM 'de' yyyy" : 'MMM dd, yyyy';
+
   return (
     <section className="mt-16 pt-10 border-t border-brand/10">
       <p className="font-sans text-[11px] uppercase tracking-[0.14em] text-foreground/40 mb-6">
-        Posts relacionados
+        {t('relatedPosts')}
       </p>
       <div className="space-y-5">
         {posts.map((post) => (
@@ -37,7 +45,7 @@ export function RelatedPosts({ posts }: RelatedPostsProps) {
             <div className="min-w-0 flex-1">
               {post.publishDate && (
                 <p className="font-sans text-[11px] text-foreground/40 mb-0.5">
-                  {format(new Date(post.publishDate), "dd 'de' MMM 'de' yyyy", { locale: ptBR })}
+                  {format(new Date(post.publishDate), datePattern, { locale: dateFnsLocale })}
                 </p>
               )}
               <p className="font-spectral font-bold text-[15px] text-foreground group-hover:text-olive transition-colors">

@@ -3,19 +3,22 @@
 import { type ProjectListItem } from '@my-website/schemas/project';
 import { ArrowUpDown, Search, X } from 'lucide-react';
 import Image from 'next/image';
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { useMemo, useRef, useState } from 'react';
 
 import { FilterPopover } from '@/components/ui/FilterPopover';
 import { TechBadge } from '@/components/ui/TechBadge';
 import { useFilterParams } from '@/hooks/useFilterParams';
+import { Link, useRouter } from '@/i18n/navigation';
 
 interface ProjectsPageClientProps {
   projects: ProjectListItem[];
 }
 
 export function ProjectsPageClient({ projects }: ProjectsPageClientProps) {
-  const { searchParams, router, updateParams } = useFilterParams();
+  const t = useTranslations('projects');
+  const router = useRouter();
+  const { searchParams, updateParams } = useFilterParams();
 
   const q = searchParams.get('q') ?? '';
   const selectedTechs = useMemo(() => {
@@ -26,30 +29,21 @@ export function ProjectsPageClient({ projects }: ProjectsPageClientProps) {
 
   const allTechs = useMemo(() => {
     const set = new Set<string>();
-    for (const p of projects) {
-      for (const t of p.techStack) set.add(t);
-    }
+    for (const p of projects) for (const tech of p.techStack) set.add(tech);
     return Array.from(set).sort();
   }, [projects]);
 
   const filtered = useMemo(() => {
     let result = [...projects];
-
     if (q.trim()) {
       const lower = q.toLowerCase();
       result = result.filter(
         (p) => p.title.toLowerCase().includes(lower) || p.summary.toLowerCase().includes(lower),
       );
     }
-
-    if (selectedTechs.length > 0) {
-      result = result.filter((p) => selectedTechs.every((t) => p.techStack.includes(t)));
-    }
-
-    if (sort === 'oldest') {
-      result.reverse();
-    }
-
+    if (selectedTechs.length > 0)
+      result = result.filter((p) => selectedTechs.every((tech) => p.techStack.includes(tech)));
+    if (sort === 'oldest') result.reverse();
     return result;
   }, [projects, q, selectedTechs, sort]);
 
@@ -60,33 +54,29 @@ export function ProjectsPageClient({ projects }: ProjectsPageClientProps) {
     updateParams({ tech: next.length > 0 ? next.join(',') : null });
   };
 
-  const toggleSort = () => {
-    updateParams({ sort: sort === 'newest' ? 'oldest' : 'newest' });
-  };
+  const toggleSort = () => updateParams({ sort: sort === 'newest' ? 'oldest' : 'newest' });
 
-  const clearFilters = () => {
-    router.replace('/projects', { scroll: false });
-  };
+  const clearFilters = () => router.replace('/projects', { scroll: false });
 
   const hasFilters = q !== '' || selectedTechs.length > 0 || sort !== 'newest';
+
   const [techSearch, setTechSearch] = useState('');
   const techSearchRef = useRef<HTMLInputElement>(null);
 
   const filteredTechOptions = useMemo(() => {
     if (!techSearch.trim()) return allTechs;
     const lower = techSearch.toLowerCase();
-    return allTechs.filter((t) => t.toLowerCase().includes(lower));
+    return allTechs.filter((tech) => tech.toLowerCase().includes(lower));
   }, [allTechs, techSearch]);
 
   return (
     <div>
-      {/* Controles de busca e filtro */}
-      <div className="flex items-center gap-3 mb-8">
-        <div className="relative flex-1">
+      <div className="flex flex-wrap items-center gap-3 mb-8">
+        <div className="relative flex-1 min-w-48">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/40 pointer-events-none" />
           <input
             type="text"
-            placeholder="Buscar projetos..."
+            placeholder={t('searchPlaceholder')}
             value={q}
             onChange={(e) => updateParams({ q: e.target.value || null })}
             className="w-full h-10 pl-9 pr-4 bg-brand/5 border border-brand/20 rounded-xl font-sans text-[14px] text-foreground placeholder:text-foreground/40 focus:outline-none focus:border-brand/50 transition-colors"
@@ -95,7 +85,7 @@ export function ProjectsPageClient({ projects }: ProjectsPageClientProps) {
 
         {allTechs.length > 0 && (
           <FilterPopover
-            label="Tecnologias"
+            label={t('techFilter')}
             count={selectedTechs.length}
             searchRef={techSearchRef}
             searchValue={techSearch}
@@ -116,20 +106,20 @@ export function ProjectsPageClient({ projects }: ProjectsPageClientProps) {
           className="inline-flex items-center gap-2 h-10 px-4 bg-brand/5 border border-brand/20 rounded-xl font-sans text-[14px] text-foreground/70 hover:bg-brand/10 hover:border-brand/40 transition-colors whitespace-nowrap"
         >
           <ArrowUpDown className="w-3.5 h-3.5" />
-          {sort === 'newest' ? 'Mais recentes' : 'Mais antigos'}
+          {sort === 'newest' ? t('sortNewest') : t('sortOldest')}
         </button>
+
         {hasFilters && (
           <button
             onClick={clearFilters}
             className="inline-flex items-center gap-1.5 h-10 px-3 text-[13px] font-sans text-foreground/50 hover:text-foreground/80 transition-colors"
           >
             <X className="w-3.5 h-3.5" />
-            Limpar
+            {t('clear')}
           </button>
         )}
       </div>
 
-      {/* Grid de projetos */}
       {filtered.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {filtered.map((project) => (
@@ -138,13 +128,13 @@ export function ProjectsPageClient({ projects }: ProjectsPageClientProps) {
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center py-24 text-center">
-          <p className="font-spectral text-[18px] text-foreground/60">Nenhum projeto encontrado.</p>
+          <p className="font-spectral text-[18px] text-foreground/60">{t('noResults')}</p>
           {hasFilters && (
             <button
               onClick={clearFilters}
               className="mt-3 font-sans text-[14px] text-olive hover:opacity-75 transition-opacity"
             >
-              Limpar filtros
+              {t('clearFilters')}
             </button>
           )}
         </div>

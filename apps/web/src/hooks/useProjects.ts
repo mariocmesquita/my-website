@@ -6,9 +6,13 @@ import {
   type CreateProjectInput,
   deleteProject,
   getProjectsAdmin,
+  getProjectTranslation,
   type ProjectAdmin,
+  type ProjectTranslation,
   updateProject,
   type UpdateProjectInput,
+  upsertProjectTranslation,
+  type UpsertProjectTranslationInput,
 } from '@/http/project';
 import { useAuth } from '@/server/firebase';
 
@@ -64,10 +68,8 @@ export function useUpdateProject() {
       const token = await getToken();
       return updateProject(token, id, data);
     },
-    onSuccess: (updated) => {
-      queryClient.setQueryData<ProjectAdmin[]>(PROJECTS_QUERY_KEY, (prev = []) =>
-        prev.map((p) => (p.id === updated.id ? updated : p)),
-      );
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: PROJECTS_QUERY_KEY });
       toast.success('Projeto atualizado com sucesso!');
     },
     onError: (error: Error) => {
@@ -93,6 +95,47 @@ export function useDeleteProject() {
     },
     onError: (error: Error) => {
       toast.error(error.message ?? 'Erro ao remover projeto.');
+    },
+  });
+}
+
+export function useProjectTranslation(id: string, locale: string) {
+  const { getToken } = useAuth();
+
+  return useQuery({
+    queryKey: ['projects', id, 'translation', locale],
+    queryFn: async (): Promise<ProjectTranslation | null> => {
+      const token = await getToken();
+      return getProjectTranslation(token, id, locale);
+    },
+    enabled: !!id && locale !== 'en',
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+export function useUpsertProjectTranslation() {
+  const { getToken } = useAuth();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      id,
+      locale,
+      data,
+    }: {
+      id: string;
+      locale: string;
+      data: UpsertProjectTranslationInput;
+    }): Promise<ProjectTranslation> => {
+      const token = await getToken();
+      return upsertProjectTranslation(token, id, locale, data);
+    },
+    onSuccess: (updated, { id, locale }) => {
+      queryClient.setQueryData(['projects', id, 'translation', locale], updated);
+      toast.success('Tradução salva com sucesso!');
+    },
+    onError: (error: Error) => {
+      toast.error(error.message ?? 'Erro ao salvar tradução.');
     },
   });
 }

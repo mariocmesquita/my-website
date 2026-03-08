@@ -8,6 +8,7 @@ export const ProjectListItemSchema = z.object({
   techStack: z.array(z.string()),
   bannerImage: z.string().nullable(),
   githubLink: z.string().nullable(),
+  translated: z.boolean().optional(),
 });
 
 export const ProjectDetailSchema = z.object({
@@ -22,6 +23,7 @@ export const ProjectDetailSchema = z.object({
   githubLink: z.string().nullable(),
   publishDate: z.string(),
   relatedPostIds: z.array(z.string()).default([]),
+  translated: z.boolean().optional(),
 });
 
 export const ProjectAdminSchema = z.object({
@@ -37,6 +39,7 @@ export const ProjectAdminSchema = z.object({
   publishDate: z.string(),
   archived: z.boolean(),
   relatedPostIds: z.array(z.string()).default([]),
+  translated: z.boolean().optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
 });
@@ -68,8 +71,31 @@ export const CreateProjectSchema = z.object({
 
 export const UpdateProjectSchema = CreateProjectSchema;
 
+export const UpsertProjectTranslationSchema = z.object({
+  title: z
+    .string()
+    .min(1, "Título é obrigatório.")
+    .max(200, "Título deve ter no máximo 200 caracteres."),
+  summary: z
+    .string()
+    .min(1, "Resumo é obrigatório.")
+    .max(300, "Resumo deve ter no máximo 300 caracteres."),
+  description: z.string().min(1, "Descrição é obrigatória."),
+});
+
+export const ProjectTranslationSchema = z.object({
+  locale: z.string(),
+  title: z.string(),
+  summary: z.string(),
+  description: z.string(),
+});
+
 export type ProjectListItem = z.infer<typeof ProjectListItemSchema>;
 export type ProjectDetail = z.infer<typeof ProjectDetailSchema>;
 export type ProjectAdmin = z.infer<typeof ProjectAdminSchema>;
 export type CreateProjectInput = z.infer<typeof CreateProjectSchema>;
 export type UpdateProjectInput = z.infer<typeof UpdateProjectSchema>;
+export type UpsertProjectTranslationInput = z.infer<
+  typeof UpsertProjectTranslationSchema
+>;
+export type ProjectTranslation = z.infer<typeof ProjectTranslationSchema>;

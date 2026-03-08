@@ -7,7 +7,10 @@ import {
   PostDetailSchema,
   type PostListItem,
   PostListItemSchema,
+  type PostTranslation,
+  PostTranslationSchema,
   type UpdatePostInput,
+  type UpsertPostTranslationInput,
 } from '@my-website/schemas/post';
 import { z } from 'zod';
 
@@ -79,4 +82,38 @@ export async function deletePost(token: string, id: string): Promise<void> {
   return handleEmptyResponse(response);
 }
 
-export type { CreatePostInput, PostAdmin, PostDetail, PostListItem, UpdatePostInput };
+export async function getPostTranslation(
+  token: string,
+  id: string,
+  locale: string,
+): Promise<PostTranslation | null> {
+  const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/posts/${id}/translations/${locale}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (response.status === 404) return null;
+  return handleResponse(response, PostTranslationSchema);
+}
+
+export async function upsertPostTranslation(
+  token: string,
+  id: string,
+  locale: string,
+  data: UpsertPostTranslationInput,
+): Promise<PostTranslation> {
+  const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/posts/${id}/translations/${locale}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify(data),
+  });
+  return handleResponse(response, PostTranslationSchema);
+}
+
+export type {
+  CreatePostInput,
+  PostAdmin,
+  PostDetail,
+  PostListItem,
+  PostTranslation,
+  UpdatePostInput,
+  UpsertPostTranslationInput,
+};

@@ -3,12 +3,14 @@
 import { type ProjectDetail } from '@my-website/schemas/project';
 import { ChevronLeft, ChevronRight, X, ZoomIn } from 'lucide-react';
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogOverlay, DialogPortal } from '@/components/ui/Dialog';
 
 export function ScreenshotsLightbox({ project }: { project: ProjectDetail }) {
+  const t = useTranslations('screenshots');
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -43,10 +45,9 @@ export function ScreenshotsLightbox({ project }: { project: ProjectDetail }) {
   return (
     <section className="mb-10">
       <p className="font-sans text-[11px] uppercase tracking-[0.14em] text-foreground/40 mb-4">
-        Screenshots
+        {t('label')}
       </p>
 
-      {/* Grid de thumbnails */}
       <div
         className={`grid gap-4 ${screenshots.length === 1 ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2'}`}
       >
@@ -73,17 +74,14 @@ export function ScreenshotsLightbox({ project }: { project: ProjectDetail }) {
         ))}
       </div>
 
-      {/* Lightbox */}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogPortal>
           <DialogOverlay className="bg-black/85 backdrop-blur-md" />
 
-          {/* Backdrop clicável para fechar */}
           <div
             className="fixed inset-0 z-50 flex flex-col items-center justify-center p-4 sm:p-8 animate-in fade-in-0 duration-200"
             onClick={() => setOpen(false)}
           >
-            {/* Barra superior: contador + fechar */}
             <div
               className="w-full max-w-5xl flex items-center justify-between mb-3 px-1"
               onClick={(e) => e.stopPropagation()}
@@ -98,11 +96,10 @@ export function ScreenshotsLightbox({ project }: { project: ProjectDetail }) {
                 className="w-8 h-8 rounded-full text-white/50 hover:text-white hover:bg-white/10"
               >
                 <X className="w-4 h-4" />
-                <span className="sr-only">Fechar</span>
+                <span className="sr-only">{t('close')}</span>
               </Button>
             </div>
 
-            {/* Imagem + botões de navegação */}
             <div className="relative w-full max-w-5xl" onClick={(e) => e.stopPropagation()}>
               <div className="relative aspect-video w-full overflow-hidden rounded-2xl border border-white/10 shadow-2xl bg-black/30">
                 <Image
@@ -124,7 +121,7 @@ export function ScreenshotsLightbox({ project }: { project: ProjectDetail }) {
                     className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/40 border-white/15 text-white hover:bg-black/65 hover:text-white hover:border-white/30 backdrop-blur-sm shadow-lg"
                   >
                     <ChevronLeft className="w-5 h-5" />
-                    <span className="sr-only">Anterior</span>
+                    <span className="sr-only">{t('previous')}</span>
                   </Button>
                   <Button
                     variant="outline"
@@ -133,13 +130,12 @@ export function ScreenshotsLightbox({ project }: { project: ProjectDetail }) {
                     className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/40 border-white/15 text-white hover:bg-black/65 hover:text-white hover:border-white/30 backdrop-blur-sm shadow-lg"
                   >
                     <ChevronRight className="w-5 h-5" />
-                    <span className="sr-only">Próximo</span>
+                    <span className="sr-only">{t('next')}</span>
                   </Button>
                 </>
               )}
             </div>
 
-            {/* Dots de paginação */}
             {screenshots.length > 1 && (
               <div className="flex items-center gap-2 mt-5" onClick={(e) => e.stopPropagation()}>
                 {screenshots.map((_, i) => (
@@ -147,7 +143,7 @@ export function ScreenshotsLightbox({ project }: { project: ProjectDetail }) {
                     key={i}
                     type="button"
                     onClick={() => setActiveIndex(i)}
-                    aria-label={`Screenshot ${i + 1}`}
+                    aria-label={t('dot', { index: i + 1 })}
                     className={`rounded-full transition-all duration-300 ${
                       i === activeIndex
                         ? 'w-5 h-1.5 bg-white'

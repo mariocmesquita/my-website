@@ -29,6 +29,7 @@ export const ProfileSchema = z.object({
     .email("E-mail inválido.")
     .max(50, "E-mail deve ter no máximo 50 caracteres."),
   socialLinks: SocialLinksSchema,
+  translated: z.boolean().optional(),
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
 });
@@ -56,6 +57,32 @@ export const UpdateProfileSchema = z.object({
   socialLinks: SocialLinksSchema.optional(),
 });
 
+export const UpsertProfileTranslationSchema = z.object({
+  position: z
+    .string()
+    .min(1, "Cargo é obrigatório.")
+    .max(50, "Cargo deve ter no máximo 50 caracteres."),
+  description: z
+    .string()
+    .min(1, "Descrição é obrigatória.")
+    .max(130, "Descrição deve ter no máximo 130 caracteres."),
+  bio: z
+    .string()
+    .min(1, "Bio é obrigatória.")
+    .max(1000, "Bio deve ter no máximo 1000 caracteres."),
+});
+
+export const ProfileTranslationSchema = z.object({
+  locale: z.string(),
+  position: z.string(),
+  description: z.string(),
+  bio: z.string(),
+});
+
 export type SocialLinks = z.infer<typeof SocialLinksSchema>;
 export type Profile = z.infer<typeof ProfileSchema>;
 export type UpdateProfileInput = z.infer<typeof UpdateProfileSchema>;
+export type UpsertProfileTranslationInput = z.infer<
+  typeof UpsertProfileTranslationSchema
+>;
+export type ProfileTranslation = z.infer<typeof ProfileTranslationSchema>;

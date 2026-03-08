@@ -1,14 +1,25 @@
 import { ChevronLeft } from 'lucide-react';
-import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
 import { Suspense } from 'react';
 
 import { Navbar } from '@/components/layout/Navbar';
+import { Link } from '@/i18n/navigation';
 import { getPublishedProjects } from '@/server/project';
 
 import { ProjectsPageClient } from './ProjectsPageClient';
 
-export default async function ProjectsPage() {
-  const projects = await getPublishedProjects();
+interface ProjectsPageProps {
+  params: Promise<{ locale: string }>;
+}
+
+export default async function ProjectsPage({ params }: ProjectsPageProps) {
+  const { locale } = await params;
+  const [projects, t] = await Promise.all([
+    getPublishedProjects(locale),
+    getTranslations('projects'),
+  ]);
+
+  const countText = projects.length > 0 ? t('count_other', { count: projects.length }) : t('empty');
 
   return (
     <div className="min-h-screen bg-background">
@@ -17,18 +28,16 @@ export default async function ProjectsPage() {
 
         <header className="mb-10">
           <Link
-            href="/#projects"
+            href="/"
             className="inline-flex items-center gap-1 font-sans text-[13px] text-foreground/50 hover:text-olive transition-colors mb-4"
           >
             <ChevronLeft className="w-3.5 h-3.5" />
-            Início
+            {t('backHome')}
           </Link>
-          <h1 className="font-spectral font-bold text-[32px] text-foreground">Projetos</h1>
-          <p className="font-spectral text-[16px] text-foreground/60 mt-1">
-            {projects.length > 0
-              ? `${projects.length} projeto${projects.length > 1 ? 's' : ''} publicado${projects.length > 1 ? 's' : ''}`
-              : 'Nenhum projeto publicado ainda.'}
-          </p>
+          <h1 className="font-spectral font-bold text-[32px] text-foreground">
+            {t('pageHeading')}
+          </h1>
+          <p className="font-spectral text-[16px] text-foreground/60 mt-1">{countText}</p>
         </header>
 
         <Suspense>

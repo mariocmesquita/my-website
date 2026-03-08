@@ -7,6 +7,6 @@ const ALLOWED_ORIGIN =
 
 export function validateCsrfOrigin(request: NextRequest): boolean {
   const origin = request.headers.get('origin');
-  if (!origin) return true;
+  if (!origin) return false;
   return origin === ALLOWED_ORIGIN;
 }

@@ -65,6 +65,7 @@ export function PostsTable({ posts, deletingId, onDelete }: PostsTableProps) {
               <TableHead className="hidden md:table-cell">Resumo</TableHead>
               <TableHead>Publicação</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead className="w-12 text-center">PT</TableHead>
               <TableHead className="w-24 text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
@@ -78,6 +79,7 @@ export function PostsTable({ posts, deletingId, onDelete }: PostsTableProps) {
             ) : (
               posts.map((post) => {
                 const status = getStatus(post);
+                const hasTranslation = !!post.translated;
                 return (
                   <TableRow key={post.id}>
                     <TableCell className="font-medium">{post.title}</TableCell>
@@ -89,6 +91,13 @@ export function PostsTable({ posts, deletingId, onDelete }: PostsTableProps) {
                     </TableCell>
                     <TableCell>
                       <Badge variant={status.variant}>{status.label}</Badge>
+                    </TableCell>
+                    <TableCell className="text-center text-base">
+                      {hasTranslation ? (
+                        <span className="text-green-600">✓</span>
+                      ) : (
+                        <span className="text-red-500">✗</span>
+                      )}
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">

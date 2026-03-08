@@ -8,9 +8,9 @@ import {
 import { cookies } from 'next/headers';
 import { z } from 'zod';
 
-export async function getPublishedPosts(): Promise<PostListItem[]> {
+export async function getPublishedPosts(locale = 'en'): Promise<PostListItem[]> {
   try {
-    const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/posts`, {
+    const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/posts?locale=${locale}`, {
       next: { revalidate: 60 },
     });
     if (!response.ok) {
@@ -25,12 +25,12 @@ export async function getPublishedPosts(): Promise<PostListItem[]> {
   }
 }
 
-export async function getPostDetail(slug: string): Promise<PostDetail | null> {
+export async function getPostDetail(slug: string, locale = 'en'): Promise<PostDetail | null> {
   try {
     const cookieStore = await cookies();
     const visitorId = cookieStore.get('mw_visitor_id')?.value;
 
-    const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/posts/${slug}`, {
+    const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/posts/${slug}?locale=${locale}`, {
       cache: 'no-store',
       headers: visitorId ? { 'x-visitor-id': visitorId } : {},
     });

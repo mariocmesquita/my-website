@@ -2,14 +2,18 @@ import { Injectable } from '@nestjs/common';
 import { uuidv7 } from 'uuidv7';
 
 import { PrismaService } from '@common/prisma/prisma.service';
-import { type CreateProjectInput, type UpdateProjectInput } from './project.schema';
+import {
+  type CreateProjectInput,
+  type UpdateProjectInput,
+  type UpsertProjectTranslationInput,
+} from './project.schema';
 
 @Injectable()
 export class ProjectRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  findPublishedList() {
-    return this.prisma.project.findMany({
+  async findPublishedList(locale = 'en') {
+    const projects = await this.prisma.project.findMany({
       where: { archived: false, publishDate: { lte: new Date() } },
       orderBy: { publishDate: 'desc' },
       select: {
@@ -20,11 +24,17 @@ export class ProjectRepository {
         techStack: true,
         bannerImage: true,
         githubLink: true,
+        translations: { where: { locale }, select: { title: true, summary: true } },
       },
+    });
+    return projects.map(({ translations, ...base }) => {
+      const t = translations[0];
+      if (locale === 'en' || !t) return { ...base, translated: locale === 'en' };
+      return { ...base, title: t.title, summary: t.summary, translated: true };
     });
   }
 
-  async findPublishedDetail(slug: string) {
+  async findPublishedDetail(slug: string, locale = 'en') {
     const project = await this.prisma.project.findFirst({
       where: { slug, archived: false, publishDate: { lte: new Date() } },
       select: {
@@ -39,21 +49,38 @@ export class ProjectRepository {
         githubLink: true,
         publishDate: true,
         posts: { select: { postId: true } },
+        translations: {
+          where: { locale },
+          select: { title: true, summary: true, description: true },
+        },
       },
     });
     if (!project) return null;
-    const { posts, ...rest } = project;
-    return { ...rest, relatedPostIds: posts.map((p) => p.postId) };
+    const { posts, translations, ...rest } = project;
+    const t = translations[0];
+    const base = { ...rest, relatedPostIds: posts.map((p) => p.postId) };
+    if (locale === 'en' || !t) return { ...base, translated: locale === 'en' };
+    return {
+      ...base,
+      title: t.title,
+      summary: t.summary,
+      description: t.description,
+      translated: true,
+    };
   }
 
   async findAll() {
     const projects = await this.prisma.project.findMany({
       orderBy: { publishDate: 'desc' },
-      include: { posts: { select: { postId: true } } },
+      include: {
+        posts: { select: { postId: true } },
+        translations: { where: { locale: 'pt' } },
+      },
     });
-    return projects.map(({ posts, ...rest }) => ({
+    return projects.map(({ posts, translations, ...rest }) => ({
       ...rest,
       relatedPostIds: posts.map((p) => p.postId),
+      translated: translations.length > 0,
     }));
   }
 
@@ -128,5 +155,26 @@ export class ProjectRepository {
 
   delete(id: string) {
     return this.prisma.project.delete({ where: { id } });
+  }
+
+  async findTranslation(id: string, locale: string) {
+    const translation = await this.prisma.projectTranslation.findUnique({
+      where: { projectId_locale: { projectId: id, locale } },
+    });
+    if (!translation) return null;
+    return {
+      locale: translation.locale,
+      title: translation.title,
+      summary: translation.summary,
+      description: translation.description,
+    };
+  }
+
+  async upsertTranslation(id: string, locale: string, data: UpsertProjectTranslationInput) {
+    return this.prisma.projectTranslation.upsert({
+      where: { projectId_locale: { projectId: id, locale } },
+      create: { id: uuidv7(), projectId: id, locale, ...data },
+      update: data,
+    });
   }
 }

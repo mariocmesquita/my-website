@@ -1,10 +1,15 @@
 import { type ProjectListItem } from '@my-website/schemas/project';
 import Image from 'next/image';
-import Link from 'next/link';
 
 import { TechBadge } from '@/components/ui/TechBadge';
+import { Link } from '@/i18n/navigation';
 
-export function ProjectCard({ project }: { project: ProjectListItem }) {
+interface ProjectCardProps {
+  project: ProjectListItem;
+  locale?: string;
+}
+
+export function ProjectCard({ project }: ProjectCardProps) {
   return (
     <Link
       href={`/projects/${project.slug}`}

@@ -26,7 +26,24 @@ model Career {
     createdAt DateTime  @default(now()) @map("created_at")
     updatedAt DateTime  @updatedAt @map("updated_at")
 
+    translations CareerTranslation[]
+
     @@map("careers")
+}
+
+model CareerTranslation {
+    id        String   @id @db.Uuid
+    careerId  String   @map("career_id") @db.Uuid
+    locale    String   @db.VarChar(5)
+    role      String   @db.VarChar(100)
+    content   String   @db.Text
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
+
+    career Career @relation(fields: [careerId], references: [id], onDelete: Cascade)
+
+    @@unique([careerId, locale])
+    @@map("career_translations")
 }
 
 model Project {
@@ -44,9 +61,26 @@ model Project {
     createdAt   DateTime @default(now()) @map("created_at")
     updatedAt   DateTime @updatedAt @map("updated_at")
 
-    posts PostProject[]
+    posts        PostProject[]
+    translations ProjectTranslation[]
 
     @@map("projects")
+}
+
+model ProjectTranslation {
+    id          String   @id @db.Uuid
+    projectId   String   @map("project_id") @db.Uuid
+    locale      String   @db.VarChar(5)
+    title       String   @db.VarChar(200)
+    summary     String   @db.VarChar(300)
+    description String   @db.Text
+    createdAt   DateTime @default(now()) @map("created_at")
+    updatedAt   DateTime @updatedAt @map("updated_at")
+
+    project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+    @@unique([projectId, locale])
+    @@map("project_translations")
 }
 
 model Post {
@@ -63,10 +97,28 @@ model Post {
     createdAt   DateTime  @default(now()) @map("created_at")
     updatedAt   DateTime  @updatedAt @map("updated_at")
 
-    projects PostProject[]
-    likes    PostLike[]
+    projects     PostProject[]
+    likes        PostLike[]
+    translations PostTranslation[]
 
     @@map("posts")
+}
+
+model PostTranslation {
+    id        String   @id @db.Uuid
+    postId    String   @map("post_id") @db.Uuid
+    locale    String   @db.VarChar(5)
+    title     String   @db.VarChar(200)
+    summary   String   @db.VarChar(300)
+    content   String   @db.Text
+    tags      Json     @default("[]")
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
+
+    post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+    @@unique([postId, locale])
+    @@map("post_translations")
 }
 
 model PostLike {
@@ -103,7 +155,25 @@ model Profile {
     createdAt   DateTime @default(now()) @map("created_at")
     updatedAt   DateTime @updatedAt @map("updated_at")
 
+    translations ProfileTranslation[]
+
     @@map("profiles")
+}
+
+model ProfileTranslation {
+    id          String   @id @db.Uuid
+    profileId   String   @map("profile_id") @db.Uuid
+    locale      String   @db.VarChar(5)
+    position    String   @db.VarChar(50)
+    description String   @db.VarChar(130)
+    bio         String   @db.VarChar(1000)
+    createdAt   DateTime @default(now()) @map("created_at")
+    updatedAt   DateTime @updatedAt @map("updated_at")
+
+    profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+    @@unique([profileId, locale])
+    @@map("profile_translations")
 }
 
 model AppLog {

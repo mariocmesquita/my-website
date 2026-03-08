@@ -1,26 +1,31 @@
 import { type Career } from '@my-website/schemas/career';
+import { getLocale, getTranslations } from 'next-intl/server';
 
 interface CareerSectionProps {
   entries: Career[];
 }
 
-function formatPeriod(startDate: string, endDate: string | null): string {
-  const fmt = (d: string) => {
+async function getDateFormatter(locale: string) {
+  const dateLocale = locale === 'pt' ? 'pt-BR' : 'en-US';
+  return (d: string) => {
     const [year, month] = d.split('T')[0]!.split('-').map(Number);
-    return new Date(year!, month! - 1, 1).toLocaleDateString('pt-BR', {
+    return new Date(year!, month! - 1, 1).toLocaleDateString(dateLocale, {
       month: 'short',
       year: 'numeric',
     });
   };
-  return `${fmt(startDate)} — ${endDate ? fmt(endDate) : 'presente'}`;
 }
 
-export function CareerSection({ entries }: CareerSectionProps) {
+export async function CareerSection({ entries }: CareerSectionProps) {
+  const t = await getTranslations('career');
+  const locale = await getLocale();
+  const fmt = await getDateFormatter(locale);
+
   if (entries.length === 0) return null;
 
   return (
     <section id="career" className="mt-16">
-      <h2 className="font-spectral font-bold text-[19px] text-foreground mb-7">Carreira</h2>
+      <h2 className="font-spectral font-bold text-[19px] text-foreground mb-7">{t('heading')}</h2>
 
       <div className="relative">
         <div className="absolute left-[5px] top-1.5 bottom-0 w-[1.5px] bg-brand/40" />
@@ -31,7 +36,7 @@ export function CareerSection({ entries }: CareerSectionProps) {
               <div className="absolute left-0 top-[6px] w-[11px] h-[11px] rounded-full bg-brand border-2 border-background" />
 
               <p className="font-sans text-[12px] text-foreground/60">
-                {formatPeriod(entry.startDate, entry.endDate)}
+                {fmt(entry.startDate)} — {entry.endDate ? fmt(entry.endDate) : t('present')}
               </p>
               <p className="font-spectral font-bold text-[16px] text-foreground mt-0.5">
                 {entry.role}

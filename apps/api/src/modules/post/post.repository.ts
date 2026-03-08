@@ -2,13 +2,17 @@ import { Injectable } from '@nestjs/common';
 import { uuidv7 } from 'uuidv7';
 
 import { PrismaService } from '@common/prisma/prisma.service';
-import { type CreatePostInput, type UpdatePostInput } from './post.schema';
+import {
+  type CreatePostInput,
+  type UpdatePostInput,
+  type UpsertPostTranslationInput,
+} from './post.schema';
 
 @Injectable()
 export class PostRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findPublishedList() {
+  async findPublishedList(locale = 'en') {
     const posts = await this.prisma.post.findMany({
       where: {
         status: 'published',
@@ -25,12 +29,24 @@ export class PostRepository {
         bannerImage: true,
         publishDate: true,
         _count: { select: { likes: true } },
+        translations: { where: { locale }, select: { title: true, summary: true, tags: true } },
       },
     });
-    return posts.map(({ _count, ...rest }) => ({ ...rest, likesCount: _count.likes }));
+    return posts.map(({ _count, translations, ...rest }) => {
+      const t = translations[0];
+      const base = { ...rest, likesCount: _count.likes };
+      if (locale === 'en' || !t) return { ...base, translated: locale === 'en' };
+      return {
+        ...base,
+        title: t.title,
+        summary: t.summary,
+        tags: t.tags as string[],
+        translated: true,
+      };
+    });
   }
 
-  async findPublishedDetail(slug: string, visitorId?: string) {
+  async findPublishedDetail(slug: string, locale = 'en', visitorId?: string) {
     const post = await this.prisma.post.findFirst({
       where: {
         slug,
@@ -49,6 +65,10 @@ export class PostRepository {
         publishDate: true,
         projects: { select: { projectId: true } },
         _count: { select: { likes: true } },
+        translations: {
+          where: { locale },
+          select: { title: true, summary: true, content: true, tags: true },
+        },
       },
     });
     if (!post) return null;
@@ -62,12 +82,22 @@ export class PostRepository {
       viewerLiked = !!like;
     }
 
-    const { projects, _count, ...rest } = post;
-    return {
+    const { projects, _count, translations, ...rest } = post;
+    const t = translations[0];
+    const base = {
       ...rest,
       relatedProjectIds: projects.map((p) => p.projectId),
       likesCount: _count.likes,
       viewer: { liked: viewerLiked },
+    };
+    if (locale === 'en' || !t) return { ...base, translated: locale === 'en' };
+    return {
+      ...base,
+      title: t.title,
+      summary: t.summary,
+      content: t.content,
+      tags: t.tags as string[],
+      translated: true,
     };
   }
 
@@ -95,11 +125,15 @@ export class PostRepository {
   async findAll() {
     const posts = await this.prisma.post.findMany({
       orderBy: { createdAt: 'desc' },
-      include: { projects: { select: { projectId: true } } },
+      include: {
+        projects: { select: { projectId: true } },
+        translations: { where: { locale: 'pt' } },
+      },
     });
-    return posts.map(({ projects, ...rest }) => ({
+    return posts.map(({ projects, translations, ...rest }) => ({
       ...rest,
       relatedProjectIds: projects.map((p) => p.projectId),
+      translated: translations.length > 0,
     }));
   }
 
@@ -172,5 +206,27 @@ export class PostRepository {
 
   delete(id: string) {
     return this.prisma.post.delete({ where: { id } });
+  }
+
+  async findTranslation(id: string, locale: string) {
+    const translation = await this.prisma.postTranslation.findUnique({
+      where: { postId_locale: { postId: id, locale } },
+    });
+    if (!translation) return null;
+    return {
+      locale: translation.locale,
+      title: translation.title,
+      summary: translation.summary,
+      content: translation.content,
+      tags: translation.tags as string[],
+    };
+  }
+
+  async upsertTranslation(id: string, locale: string, data: UpsertPostTranslationInput) {
+    return this.prisma.postTranslation.upsert({
+      where: { postId_locale: { postId: id, locale } },
+      create: { id: uuidv7(), postId: id, locale, ...data },
+      update: data,
+    });
   }
 }

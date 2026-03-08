@@ -59,16 +59,19 @@ export function PostContent({ content }: { content: string }) {
             );
           },
           pre: ({ children }) => <>{children}</>,
-          a: ({ href, children }) => (
-            <a
-              href={href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-olive underline underline-offset-2 hover:opacity-75 transition-opacity"
-            >
-              {children}
-            </a>
-          ),
+          a: ({ href, children }) => {
+            const safe = href && /^https?:\/\//i.test(href) ? href : '#';
+            return (
+              <a
+                href={safe}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-olive underline underline-offset-2 hover:opacity-75 transition-opacity"
+              >
+                {children}
+              </a>
+            );
+          },
           strong: ({ children }) => (
             <strong className="font-bold text-foreground">{children}</strong>
           ),

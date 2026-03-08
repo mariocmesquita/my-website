@@ -4,7 +4,11 @@ import * as path from 'path';
 import { uuidv7 } from 'uuidv7';
 
 import { env } from '@my-website/env';
-import { type CreateProjectInput, type UpdateProjectInput } from './project.schema';
+import {
+  type CreateProjectInput,
+  type UpdateProjectInput,
+  type UpsertProjectTranslationInput,
+} from './project.schema';
 import { ProjectRepository } from './project.repository';
 
 function slugify(text: string): string {
@@ -24,18 +28,24 @@ export class ProjectService {
 
   constructor(private readonly projectRepository: ProjectRepository) {}
 
-  getPublishedList() {
-    return this.projectRepository.findPublishedList();
+  getPublishedList(locale = 'en') {
+    return this.projectRepository.findPublishedList(locale);
   }
 
-  async getPublishedDetail(slug: string) {
-    const project = await this.projectRepository.findPublishedDetail(slug);
+  async getPublishedDetail(slug: string, locale = 'en') {
+    const project = await this.projectRepository.findPublishedDetail(slug, locale);
     if (!project) throw new NotFoundException('Projeto não encontrado.');
     return project;
   }
 
   getAll() {
     return this.projectRepository.findAll();
+  }
+
+  async getById(id: string) {
+    const project = await this.projectRepository.findById(id);
+    if (!project) throw new NotFoundException('Projeto não encontrado.');
+    return project;
   }
 
   async uploadFile(
@@ -49,9 +59,7 @@ export class ProjectService {
     const fileName = `projects/${folder}/${uuidv7()}${ext}`;
     const bucket = getStorage().bucket(env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET);
     const file = bucket.file(fileName);
-
     await file.save(buffer, { metadata: { contentType: mimetype } });
-
     const encodedPath = encodeURIComponent(fileName);
     return `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodedPath}?alt=media`;
   }
@@ -79,6 +87,15 @@ export class ProjectService {
     } catch {
       throw new NotFoundException('Projeto não encontrado.');
     }
+  }
+
+  async getTranslation(id: string, locale: string) {
+    return this.projectRepository.findTranslation(id, locale);
+  }
+
+  async upsertTranslation(id: string, locale: string, data: UpsertProjectTranslationInput) {
+    this.logger.log(`Salvando tradução de projeto ${id}: ${locale}`);
+    return this.projectRepository.upsertTranslation(id, locale, data);
   }
 
   private async ensureUniqueSlug(base: string): Promise<string> {

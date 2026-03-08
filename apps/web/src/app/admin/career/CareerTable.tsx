@@ -54,45 +54,56 @@ export function CareerTable({ careers, deletingId, onNew, onEdit, onDelete }: Ca
               <TableHead>Empresa</TableHead>
               <TableHead>Cargo</TableHead>
               <TableHead>Período</TableHead>
+              <TableHead className="w-12 text-center">PT</TableHead>
               <TableHead className="w-24 text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {careers.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={4} className="py-8 text-center text-muted-foreground">
+                <TableCell colSpan={5} className="py-8 text-center text-muted-foreground">
                   Nenhuma entrada cadastrada.
                 </TableCell>
               </TableRow>
             ) : (
-              careers.map((career) => (
-                <TableRow key={career.id}>
-                  <TableCell className="font-medium">{career.company}</TableCell>
-                  <TableCell>{career.role}</TableCell>
-                  <TableCell className="text-sm text-muted-foreground">
-                    {formatPeriod(career.startDate, career.endDate)}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <button
-                        onClick={() => onEdit(career)}
-                        className="rounded p-1.5 text-muted-foreground transition hover:bg-muted hover:text-foreground"
-                        title="Editar"
-                      >
-                        <Pencil size={15} />
-                      </button>
-                      <button
-                        onClick={() => onDelete(career.id)}
-                        disabled={deletingId === career.id}
-                        className="rounded p-1.5 text-muted-foreground transition hover:bg-destructive/10 hover:text-destructive disabled:opacity-50"
-                        title="Remover"
-                      >
-                        <Trash2 size={15} />
-                      </button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
+              careers.map((career) => {
+                const hasTranslation = !!career.translated;
+                return (
+                  <TableRow key={career.id}>
+                    <TableCell className="font-medium">{career.company}</TableCell>
+                    <TableCell>{career.role}</TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {formatPeriod(career.startDate, career.endDate)}
+                    </TableCell>
+                    <TableCell className="text-center text-base">
+                      {hasTranslation ? (
+                        <span className="text-green-600">✓</span>
+                      ) : (
+                        <span className="text-red-500">✗</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => onEdit(career)}
+                          className="rounded p-1.5 text-muted-foreground transition hover:bg-muted hover:text-foreground"
+                          title="Editar"
+                        >
+                          <Pencil size={15} />
+                        </button>
+                        <button
+                          onClick={() => onDelete(career.id)}
+                          disabled={deletingId === career.id}
+                          className="rounded p-1.5 text-muted-foreground transition hover:bg-destructive/10 hover:text-destructive disabled:opacity-50"
+                          title="Remover"
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
             )}
           </TableBody>
         </Table>

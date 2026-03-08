@@ -1,0 +1,82 @@
+{
+  "nav": {
+    "home": "Home",
+    "projects": "Projetos",
+    "blog": "Blog"
+  },
+  "sidebar": {
+    "about": "Sobre mim",
+    "career": "Carreira",
+    "latestProjects": "Últimos projetos",
+    "latestPosts": "Últimos posts"
+  },
+  "footer": {
+    "copyright": "© {year} Mário Mesquita."
+  },
+  "career": {
+    "heading": "Carreira",
+    "present": "presente"
+  },
+  "projects": {
+    "heading": "Últimos Projetos",
+    "empty": "Nenhum projeto publicado ainda.",
+    "viewAll": "Todos os projetos",
+    "pageHeading": "Projetos",
+    "backHome": "Início",
+    "count_one": "{count} projeto publicado",
+    "count_other": "{count} projetos publicados",
+    "searchPlaceholder": "Buscar projetos...",
+    "techFilter": "Tecnologias",
+    "sortNewest": "Mais recentes",
+    "sortOldest": "Mais antigos",
+    "clear": "Limpar",
+    "noResults": "Nenhum projeto encontrado.",
+    "clearFilters": "Limpar filtros",
+    "backToList": "Todos os projetos",
+    "viewOnGithub": "Ver no GitHub",
+    "stackLabel": "Stack",
+    "aboutProject": "Sobre o projeto"
+  },
+  "posts": {
+    "heading": "Últimos posts",
+    "empty": "Nenhum post publicado ainda.",
+    "viewAll": "Todos os posts",
+    "pageHeading": "Blog",
+    "backHome": "Início",
+    "count_one": "{count} post publicado",
+    "count_other": "{count} posts publicados",
+    "searchPlaceholder": "Buscar posts...",
+    "categoryFilter": "Categorias",
+    "techFilter": "Tecnologias",
+    "sortNewest": "Mais recentes",
+    "sortOldest": "Mais antigos",
+    "clear": "Limpar",
+    "noResults": "Nenhum post encontrado.",
+    "clearFilters": "Limpar filtros",
+    "backToList": "Todos os posts",
+    "stackLabel": "Stack"
+  },
+  "relatedProjects": "Projetos relacionados",
+  "relatedPosts": "Posts relacionados",
+  "screenshots": {
+    "label": "Screenshots",
+    "close": "Fechar",
+    "previous": "Anterior",
+    "next": "Próximo",
+    "dot": "Screenshot {index}"
+  },
+  "filter": {
+    "placeholder": "Filtrar...",
+    "noOptions": "Nenhuma opção",
+    "clearSelection": "Limpar seleção"
+  },
+  "likeButton": {
+    "liked": "Post curtido",
+    "notLiked": "Curtir post"
+  },
+  "backToTop": "Voltar ao topo",
+  "notTranslated": "Este conteúdo ainda não está disponível em português.",
+  "languageSwitcher": {
+    "label": "Idioma"
+  }
+}

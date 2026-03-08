@@ -1,7 +1,16 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
-import { getProfile, type Profile, updateProfile, type UpdateProfileInput } from '@/http/profile';
+import {
+  getProfile,
+  getProfileTranslation,
+  type Profile,
+  type ProfileTranslation,
+  updateProfile,
+  type UpdateProfileInput,
+  upsertProfileTranslation,
+  type UpsertProfileTranslationInput,
+} from '@/http/profile';
 import { useAuth } from '@/server/firebase';
 
 export const PROFILE_QUERY_KEY = ['profile'] as const;
@@ -30,6 +39,45 @@ export function useUpdateProfile() {
     },
     onError: (error: Error) => {
       toast.error(error.message ?? 'Erro ao atualizar perfil.');
+    },
+  });
+}
+
+export function useProfileTranslation(locale: string) {
+  const { getToken } = useAuth();
+
+  return useQuery({
+    queryKey: ['profile', 'translation', locale],
+    queryFn: async (): Promise<ProfileTranslation | null> => {
+      const token = await getToken();
+      return getProfileTranslation(token, locale);
+    },
+    enabled: locale !== 'en',
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+export function useUpsertProfileTranslation() {
+  const { getToken } = useAuth();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      locale,
+      data,
+    }: {
+      locale: string;
+      data: UpsertProfileTranslationInput;
+    }): Promise<ProfileTranslation> => {
+      const token = await getToken();
+      return upsertProfileTranslation(token, locale, data);
+    },
+    onSuccess: (updated, { locale }) => {
+      queryClient.setQueryData(['profile', 'translation', locale], updated);
+      toast.success('Tradução salva com sucesso!');
+    },
+    onError: (error: Error) => {
+      toast.error(error.message ?? 'Erro ao salvar tradução.');
     },
   });
 }

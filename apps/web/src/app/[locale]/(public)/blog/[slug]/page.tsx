@@ -1,13 +1,15 @@
 import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
+import { enUS, ptBR } from 'date-fns/locale';
 import { ChevronLeft } from 'lucide-react';
 import Image from 'next/image';
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { getTranslations } from 'next-intl/server';
 
 import { Navbar } from '@/components/layout/Navbar';
 import { LikeButton } from '@/components/ui/LikeButton';
+import { NotTranslatedBanner } from '@/components/ui/NotTranslatedBanner';
 import { TechBadge } from '@/components/ui/TechBadge';
+import { Link } from '@/i18n/navigation';
 import { getPostDetail } from '@/server/post';
 import { getPublishedProjects } from '@/server/project';
 
@@ -15,19 +17,26 @@ import { PostContent } from './PostContent';
 import { RelatedProjects } from './RelatedProjects';
 
 interface PostDetailPageProps {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ locale: string; slug: string }>;
 }
 
 export default async function PostDetailPage({ params }: PostDetailPageProps) {
-  const { slug } = await params;
-  const [post, allProjects] = await Promise.all([getPostDetail(slug), getPublishedProjects()]);
+  const { locale, slug } = await params;
+  const [post, allProjects, t] = await Promise.all([
+    getPostDetail(slug, locale),
+    getPublishedProjects(locale),
+    getTranslations('posts'),
+  ]);
 
   if (!post) notFound();
 
   const relatedProjects = allProjects.filter((p) => post.relatedProjectIds.includes(p.id));
 
+  const dateFnsLocale = locale === 'pt' ? ptBR : enUS;
+  const datePattern = locale === 'pt' ? "dd 'de' MMMM 'de' yyyy" : 'MMMM dd, yyyy';
+
   const formattedDate = post.publishDate
-    ? format(new Date(post.publishDate), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })
+    ? format(new Date(post.publishDate), datePattern, { locale: dateFnsLocale })
     : null;
 
   return (
@@ -40,8 +49,10 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
           className="inline-flex items-center gap-1 font-sans text-[13px] text-foreground/50 hover:text-olive transition-colors mb-8"
         >
           <ChevronLeft className="w-3.5 h-3.5" />
-          Todos os posts
+          {t('backToList')}
         </Link>
+
+        {post.translated === false && <NotTranslatedBanner />}
 
         {/* Banner */}
         {post.bannerImage && (
@@ -57,8 +68,8 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
           </div>
         )}
 
-        {/* Cabeçalho */}
-        <header className="mb-10 pb-10 border-b border-brand/10">
+        {/* Header */}
+        <header className="mb-10 pb-6 border-b border-brand/10">
           {formattedDate && (
             <p className="font-sans text-[12px] uppercase tracking-[0.14em] text-foreground/40 mb-3">
               {formattedDate}
@@ -71,32 +82,33 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
             {post.summary}
           </p>
 
-          <div className="flex flex-wrap items-center gap-4">
+          <div className="flex flex-wrap items-center gap-4 mb-6">
             {post.tags.length > 0 && (
               <div className="flex flex-wrap gap-1.5">
                 {post.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="inline-flex items-center h-6 px-3 rounded-full bg-brand/10 font-sans text-[12px] text-brand/80"
+                    className="inline-flex items-center h-7 px-3 rounded-full bg-brand/10 font-sans text-[12px] text-brand/80"
                   >
                     {tag}
                   </span>
                 ))}
               </div>
             )}
-            <LikeButton
-              slug={post.slug}
-              initialLikesCount={post.likesCount}
-              initialLiked={post.viewer.liked}
-            />
           </div>
+
+          <LikeButton
+            slug={post.slug}
+            initialLikesCount={post.likesCount}
+            initialLiked={post.viewer.liked}
+          />
         </header>
 
         {/* Tech stack */}
         {post.techStack.length > 0 && (
           <div className="mb-10">
             <p className="font-sans text-[11px] uppercase tracking-[0.14em] text-foreground/40 mb-3">
-              Stack
+              {t('stackLabel')}
             </p>
             <div className="flex flex-wrap gap-2">
               {post.techStack.map((tech) => (
@@ -106,12 +118,12 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
           </div>
         )}
 
-        {/* Conteúdo */}
+        {/* Content */}
         <section className="mb-10">
           <PostContent content={post.content} />
         </section>
 
-        {/* Projetos relacionados */}
+        {/* Related projects */}
         {relatedProjects.length > 0 && <RelatedProjects projects={relatedProjects} />}
       </div>
     </div>

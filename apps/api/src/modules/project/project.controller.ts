@@ -9,6 +9,7 @@ import {
   Param,
   Patch,
   Post,
+  Put,
   Query,
   UploadedFile,
   UseGuards,
@@ -17,8 +18,14 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 
 import { FirebaseAuthGuard } from '@common/guards/firebase-auth.guard';
-import { CreateProjectSchema, UpdateProjectSchema } from './project.schema';
+import {
+  CreateProjectSchema,
+  UpdateProjectSchema,
+  UpsertProjectTranslationSchema,
+} from './project.schema';
 import { ProjectService } from './project.service';
+
+const SUPPORTED_LOCALES = ['en', 'pt'];
 
 @Controller('projects')
 export class ProjectController {
@@ -26,8 +33,9 @@ export class ProjectController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  async getPublishedList() {
-    const projects = await this.projectService.getPublishedList();
+  async getPublishedList(@Query('locale') locale?: string) {
+    const resolvedLocale = SUPPORTED_LOCALES.includes(locale ?? '') ? locale! : 'en';
+    const projects = await this.projectService.getPublishedList(resolvedLocale);
     return { data: projects, message: 'Projetos obtidos com sucesso.' };
   }
 
@@ -39,10 +47,19 @@ export class ProjectController {
     return { data: projects, message: 'Projetos obtidos com sucesso.' };
   }
 
+  @Get('admin/:id')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(FirebaseAuthGuard)
+  async getProjectById(@Param('id') id: string) {
+    const project = await this.projectService.getById(id);
+    return { data: project, message: 'Projeto obtido com sucesso.' };
+  }
+
   @Get(':slug')
   @HttpCode(HttpStatus.OK)
-  async getProjectDetail(@Param('slug') slug: string) {
-    const project = await this.projectService.getPublishedDetail(slug);
+  async getProjectDetail(@Param('slug') slug: string, @Query('locale') locale?: string) {
+    const resolvedLocale = SUPPORTED_LOCALES.includes(locale ?? '') ? locale! : 'en';
+    const project = await this.projectService.getPublishedDetail(slug, resolvedLocale);
     return { data: project, message: 'Projeto obtido com sucesso.' };
   }
 
@@ -99,5 +116,31 @@ export class ProjectController {
   @UseGuards(FirebaseAuthGuard)
   async deleteProject(@Param('id') id: string) {
     await this.projectService.deleteProject(id);
+  }
+
+  @Get(':id/translations/:locale')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(FirebaseAuthGuard)
+  async getTranslation(@Param('id') id: string, @Param('locale') locale: string) {
+    const translation = await this.projectService.getTranslation(id, locale);
+    return { data: translation, message: 'Tradução obtida com sucesso.' };
+  }
+
+  @Put(':id/translations/:locale')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(FirebaseAuthGuard)
+  async upsertTranslation(
+    @Param('id') id: string,
+    @Param('locale') locale: string,
+    @Body() body: unknown,
+  ) {
+    if (!SUPPORTED_LOCALES.includes(locale)) throw new BadRequestException('Locale inválido.');
+    const result = UpsertProjectTranslationSchema.safeParse(body);
+    if (!result.success) {
+      const message = result.error.issues.map((e) => e.message).join(', ');
+      throw new BadRequestException(message);
+    }
+    const translation = await this.projectService.upsertTranslation(id, locale, result.data);
+    return { data: translation, message: 'Tradução salva com sucesso.' };
   }
 }

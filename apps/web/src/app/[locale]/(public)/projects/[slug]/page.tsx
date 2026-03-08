@@ -1,10 +1,12 @@
 import { ArrowUpRight, ChevronLeft } from 'lucide-react';
 import Image from 'next/image';
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { getTranslations } from 'next-intl/server';
 
 import { Navbar } from '@/components/layout/Navbar';
+import { NotTranslatedBanner } from '@/components/ui/NotTranslatedBanner';
 import { TechBadge } from '@/components/ui/TechBadge';
+import { Link } from '@/i18n/navigation';
 import { getPublishedPosts } from '@/server/post';
 import { getProjectDetail } from '@/server/project';
 
@@ -12,31 +14,35 @@ import { RelatedPosts } from './RelatedPosts';
 import { ScreenshotsLightbox } from './ScreenshotsLightbox';
 
 interface ProjectDetailPageProps {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ locale: string; slug: string }>;
 }
 
 export default async function ProjectDetailPage({ params }: ProjectDetailPageProps) {
-  const { slug } = await params;
-  const project = await getProjectDetail(slug);
+  const { locale, slug } = await params;
+  const [project, posts, t] = await Promise.all([
+    getProjectDetail(slug, locale),
+    getPublishedPosts(locale),
+    getTranslations('projects'),
+  ]);
 
   if (!project) notFound();
 
-  const relatedPosts =
-    project.relatedPostIds.length > 0
-      ? (await getPublishedPosts()).filter((p) => project.relatedPostIds.includes(p.id))
-      : [];
+  const relatedPosts = posts.filter((p) => project.relatedPostIds.includes(p.id));
 
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-[1200px] px-6 pb-20">
         <Navbar />
+
         <Link
           href="/projects"
           className="inline-flex items-center gap-1 font-sans text-[13px] text-foreground/50 hover:text-olive transition-colors mb-8"
         >
           <ChevronLeft className="w-3.5 h-3.5" />
-          Todos os projetos
+          {t('backToList')}
         </Link>
+
+        {project.translated === false && <NotTranslatedBanner />}
 
         {/* Banner */}
         {project.bannerImage && (
@@ -52,7 +58,7 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
           </div>
         )}
 
-        {/* Cabeçalho */}
+        {/* Header */}
         <header className="mb-10 pb-10 border-b border-brand/10">
           <h1 className="font-spectral font-bold text-[34px] text-foreground leading-tight mb-3">
             {project.title}
@@ -67,7 +73,7 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 h-9 px-4 bg-brand text-brand-foreground rounded-xl font-sans text-[13px] hover:opacity-85 transition-opacity"
             >
-              Ver no GitHub
+              {t('viewOnGithub')}
               <ArrowUpRight className="w-3.5 h-3.5" />
             </a>
           )}
@@ -77,7 +83,7 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
         {project.techStack.length > 0 && (
           <div className="mb-10">
             <p className="font-sans text-[11px] uppercase tracking-[0.14em] text-foreground/40 mb-3">
-              Stack
+              {t('stackLabel')}
             </p>
             <div className="flex flex-wrap gap-2">
               {project.techStack.map((tech) => (
@@ -87,11 +93,11 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
           </div>
         )}
 
-        {/* Descrição */}
+        {/* Description */}
         {project.description && (
           <section className="mb-10">
             <p className="font-sans text-[11px] uppercase tracking-[0.14em] text-foreground/40 mb-4">
-              Sobre o projeto
+              {t('aboutProject')}
             </p>
             <div className="font-spectral text-[16px] text-foreground/80 leading-[1.8] whitespace-pre-wrap">
               {project.description}
@@ -102,7 +108,7 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
         {/* Screenshots */}
         <ScreenshotsLightbox project={project} />
 
-        {relatedPosts.length > 0 && <RelatedPosts posts={relatedPosts} />}
+        {relatedPosts.length > 0 && <RelatedPosts posts={relatedPosts} locale={locale} />}
       </div>
     </div>
   );

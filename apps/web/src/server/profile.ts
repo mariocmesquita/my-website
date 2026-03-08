@@ -1,9 +1,9 @@
 import { env } from '@my-website/env';
 import { type Profile, ProfileSchema } from '@my-website/schemas/profile';
 
-export async function getProfileData(): Promise<Profile | null> {
+export async function getProfileData(locale = 'en'): Promise<Profile | null> {
   try {
-    const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/profile`, {
+    const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/profile?locale=${locale}`, {
       next: { revalidate: 60 },
     });
 

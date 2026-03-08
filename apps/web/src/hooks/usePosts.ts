@@ -7,9 +7,13 @@ import {
   deletePost,
   getPostAdmin,
   getPostsAdmin,
+  getPostTranslation,
   type PostAdmin,
+  type PostTranslation,
   updatePost,
   type UpdatePostInput,
+  upsertPostTranslation,
+  type UpsertPostTranslationInput,
 } from '@/http/post';
 import { useAuth } from '@/server/firebase';
 
@@ -95,6 +99,48 @@ export function useDeletePost() {
     },
     onError: (error: Error) => {
       toast.error(error.message ?? 'Erro ao remover post.');
+    },
+  });
+}
+
+export function usePostTranslation(id: string | undefined, locale: string) {
+  const { getToken } = useAuth();
+
+  return useQuery({
+    queryKey: ['posts', 'admin', id, 'translation', locale],
+    queryFn: async (): Promise<PostTranslation | null> => {
+      const token = await getToken();
+      return getPostTranslation(token, id!, locale);
+    },
+    enabled: !!id && locale !== 'en',
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+export function useUpsertPostTranslation() {
+  const { getToken } = useAuth();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      id,
+      locale,
+      data,
+    }: {
+      id: string;
+      locale: string;
+      data: UpsertPostTranslationInput;
+    }): Promise<PostTranslation> => {
+      const token = await getToken();
+      return upsertPostTranslation(token, id, locale, data);
+    },
+    onSuccess: (updated, { id, locale }) => {
+      queryClient.setQueryData(['posts', 'admin', id, 'translation', locale], updated);
+      queryClient.invalidateQueries({ queryKey: ['posts', 'admin', id] });
+      toast.success('Tradução salva com sucesso!');
+    },
+    onError: (error: Error) => {
+      toast.error(error.message ?? 'Erro ao salvar tradução.');
     },
   });
 }

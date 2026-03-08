@@ -2,7 +2,12 @@
 
 import { useState } from 'react';
 
-import { useCareers, useCreateCareer, useDeleteCareer, useUpdateCareer } from '@/hooks/useCareer';
+import {
+  useCareersAdmin,
+  useCreateCareer,
+  useDeleteCareer,
+  useUpdateCareer,
+} from '@/hooks/useCareer';
 import { type Career, type CreateCareerInput } from '@/http/career';
 
 import { CareerSheet } from './CareerSheet';
@@ -11,7 +16,7 @@ import { CareerTable } from './CareerTable';
 type SheetState = { open: boolean; career: Career | null };
 
 export function CareerPageClient() {
-  const { data: careers = [], isLoading, isError } = useCareers();
+  const { data: careers = [], isLoading, isError } = useCareersAdmin();
   const { mutate: createCareer, isPending: isCreating } = useCreateCareer();
   const { mutate: updateCareer, isPending: isUpdating } = useUpdateCareer();
   const { mutate: deleteCareer } = useDeleteCareer();
@@ -23,11 +28,16 @@ export function CareerPageClient() {
   const openEdit = (career: Career) => setSheet({ open: true, career });
   const closeSheet = () => setSheet({ open: false, career: null });
 
-  const handleSubmit = (values: CreateCareerInput) => {
+  const handleSubmit = (values: CreateCareerInput, onSuccess: () => void) => {
     if (sheet.career) {
-      updateCareer({ id: sheet.career.id, data: values }, { onSuccess: closeSheet });
+      updateCareer({ id: sheet.career.id, data: values }, { onSuccess });
     } else {
-      createCareer(values, { onSuccess: closeSheet });
+      createCareer(values, {
+        onSuccess: (created) => {
+          setSheet({ open: true, career: created });
+          onSuccess();
+        },
+      });
     }
   };
 

@@ -1,18 +1,21 @@
 import { type ProjectListItem } from '@my-website/schemas/project';
 import Image from 'next/image';
-import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
 
 import { TechBadge } from '@/components/ui/TechBadge';
+import { Link } from '@/i18n/navigation';
 
 interface RelatedProjectsProps {
   projects: ProjectListItem[];
 }
 
-export function RelatedProjects({ projects }: RelatedProjectsProps) {
+export async function RelatedProjects({ projects }: RelatedProjectsProps) {
+  const t = await getTranslations();
+
   return (
     <section className="mt-16 pt-10 border-t border-brand/10">
       <p className="font-sans text-[11px] uppercase tracking-[0.14em] text-foreground/40 mb-6">
-        Projetos relacionados
+        {t('relatedProjects')}
       </p>
       <div className="space-y-5">
         {projects.map((project) => (

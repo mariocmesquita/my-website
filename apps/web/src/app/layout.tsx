@@ -2,6 +2,7 @@ import './globals.css';
 
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono, Spectral } from 'next/font/google';
+import { getLocale } from 'next-intl/server';
 
 import { Providers } from './providers';
 
@@ -26,13 +27,15 @@ export const metadata: Metadata = {
   description: 'Senior Software Engineer — TypeScript, Node.js, React.',
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
+
   return (
-    <html lang="en" className="scroll-smooth">
+    <html lang={locale} className="scroll-smooth">
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${spectral.variable} antialiased`}
       >

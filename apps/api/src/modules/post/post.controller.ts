@@ -10,6 +10,7 @@ import {
   Param,
   Patch,
   Post,
+  Put,
   Query,
   UploadedFile,
   UseGuards,
@@ -19,8 +20,15 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { Throttle } from '@nestjs/throttler';
 
 import { FirebaseAuthGuard } from '@common/guards/firebase-auth.guard';
-import { CreatePostSchema, LikePostSchema, UpdatePostSchema } from './post.schema';
+import {
+  CreatePostSchema,
+  LikePostSchema,
+  UpdatePostSchema,
+  UpsertPostTranslationSchema,
+} from './post.schema';
 import { PostService } from './post.service';
+
+const SUPPORTED_LOCALES = ['en', 'pt'];
 
 @Controller('posts')
 export class PostController {
@@ -28,8 +36,9 @@ export class PostController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  async getPublishedList() {
-    const posts = await this.postService.getPublishedList();
+  async getPublishedList(@Query('locale') locale?: string) {
+    const resolvedLocale = SUPPORTED_LOCALES.includes(locale ?? '') ? locale! : 'en';
+    const posts = await this.postService.getPublishedList(resolvedLocale);
     return { data: posts, message: 'Posts obtidos com sucesso.' };
   }
 
@@ -51,8 +60,13 @@ export class PostController {
 
   @Get(':slug')
   @HttpCode(HttpStatus.OK)
-  async getPostDetail(@Param('slug') slug: string, @Headers('x-visitor-id') visitorId?: string) {
-    const post = await this.postService.getPublishedDetail(slug, visitorId);
+  async getPostDetail(
+    @Param('slug') slug: string,
+    @Query('locale') locale?: string,
+    @Headers('x-visitor-id') visitorId?: string,
+  ) {
+    const resolvedLocale = SUPPORTED_LOCALES.includes(locale ?? '') ? locale! : 'en';
+    const post = await this.postService.getPublishedDetail(slug, resolvedLocale, visitorId);
     return { data: post, message: 'Post obtido com sucesso.' };
   }
 
@@ -116,5 +130,31 @@ export class PostController {
   @UseGuards(FirebaseAuthGuard)
   async deletePost(@Param('id') id: string) {
     await this.postService.deletePost(id);
+  }
+
+  @Get(':id/translations/:locale')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(FirebaseAuthGuard)
+  async getTranslation(@Param('id') id: string, @Param('locale') locale: string) {
+    const translation = await this.postService.getTranslation(id, locale);
+    return { data: translation, message: 'Tradução obtida com sucesso.' };
+  }
+
+  @Put(':id/translations/:locale')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(FirebaseAuthGuard)
+  async upsertTranslation(
+    @Param('id') id: string,
+    @Param('locale') locale: string,
+    @Body() body: unknown,
+  ) {
+    if (!SUPPORTED_LOCALES.includes(locale)) throw new BadRequestException('Locale inválido.');
+    const result = UpsertPostTranslationSchema.safeParse(body);
+    if (!result.success) {
+      const message = result.error.issues.map((e) => e.message).join(', ');
+      throw new BadRequestException(message);
+    }
+    const translation = await this.postService.upsertTranslation(id, locale, result.data);
+    return { data: translation, message: 'Tradução salva com sucesso.' };
   }
 }

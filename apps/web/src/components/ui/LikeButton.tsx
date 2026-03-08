@@ -1,6 +1,7 @@
 'use client';
 
 import { Heart } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 interface LikeButtonProps {
@@ -10,6 +11,7 @@ interface LikeButtonProps {
 }
 
 export function LikeButton({ slug, initialLikesCount, initialLiked }: LikeButtonProps) {
+  const t = useTranslations('likeButton');
   const [likesCount, setLikesCount] = useState(initialLikesCount);
   const [liked, setLiked] = useState(initialLiked);
   const [isLoading, setIsLoading] = useState(false);
@@ -34,9 +36,9 @@ export function LikeButton({ slug, initialLikesCount, initialLiked }: LikeButton
     <button
       onClick={handleLike}
       disabled={liked || isLoading}
-      aria-label={liked ? 'Post curtido' : 'Curtir post'}
+      aria-label={liked ? t('liked') : t('notLiked')}
       className={[
-        'inline-flex items-center gap-2 h-9 px-4 rounded-full border font-sans text-[13px] transition-all',
+        'inline-flex items-center gap-1 h-7 px-2 rounded-full border font-sans text-[13px] transition-all',
         liked
           ? 'bg-brand/10 border-brand/30 text-brand cursor-default'
           : 'border-brand/20 text-foreground/60 hover:bg-brand/5 hover:border-brand/30 hover:text-brand cursor-pointer',

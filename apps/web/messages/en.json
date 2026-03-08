@@ -1,0 +1,82 @@
+{
+  "nav": {
+    "home": "Home",
+    "projects": "Projects",
+    "blog": "Blog"
+  },
+  "sidebar": {
+    "about": "About me",
+    "career": "Career",
+    "latestProjects": "Latest projects",
+    "latestPosts": "Latest posts"
+  },
+  "footer": {
+    "copyright": "© {year} Mário Mesquita."
+  },
+  "career": {
+    "heading": "Career",
+    "present": "present"
+  },
+  "projects": {
+    "heading": "Latest Projects",
+    "empty": "No published projects yet.",
+    "viewAll": "All projects",
+    "pageHeading": "Projects",
+    "backHome": "Home",
+    "count_one": "{count} published project",
+    "count_other": "{count} published projects",
+    "searchPlaceholder": "Search projects...",
+    "techFilter": "Technologies",
+    "sortNewest": "Newest",
+    "sortOldest": "Oldest",
+    "clear": "Clear",
+    "noResults": "No projects found.",
+    "clearFilters": "Clear filters",
+    "backToList": "All projects",
+    "viewOnGithub": "View on GitHub",
+    "stackLabel": "Stack",
+    "aboutProject": "About the project"
+  },
+  "posts": {
+    "heading": "Latest posts",
+    "empty": "No published posts yet.",
+    "viewAll": "All posts",
+    "pageHeading": "Blog",
+    "backHome": "Home",
+    "count_one": "{count} published post",
+    "count_other": "{count} published posts",
+    "searchPlaceholder": "Search posts...",
+    "categoryFilter": "Categories",
+    "techFilter": "Technologies",
+    "sortNewest": "Newest",
+    "sortOldest": "Oldest",
+    "clear": "Clear",
+    "noResults": "No posts found.",
+    "clearFilters": "Clear filters",
+    "backToList": "All posts",
+    "stackLabel": "Stack"
+  },
+  "relatedProjects": "Related projects",
+  "relatedPosts": "Related posts",
+  "screenshots": {
+    "label": "Screenshots",
+    "close": "Close",
+    "previous": "Previous",
+    "next": "Next",
+    "dot": "Screenshot {index}"
+  },
+  "filter": {
+    "placeholder": "Filter...",
+    "noOptions": "No options",
+    "clearSelection": "Clear selection"
+  },
+  "likeButton": {
+    "liked": "Post liked",
+    "notLiked": "Like post"
+  },
+  "backToTop": "Back to top",
+  "notTranslated": "This content has not been translated to English yet.",
+  "languageSwitcher": {
+    "label": "Language"
+  }
+}

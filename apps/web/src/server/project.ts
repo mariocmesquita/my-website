@@ -7,9 +7,9 @@ import {
 } from '@my-website/schemas/project';
 import { z } from 'zod';
 
-export async function getProjectDetail(slug: string): Promise<ProjectDetail | null> {
+export async function getProjectDetail(slug: string, locale = 'en'): Promise<ProjectDetail | null> {
   try {
-    const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/projects/${slug}`, {
+    const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/projects/${slug}?locale=${locale}`, {
       next: { revalidate: 60 },
     });
     if (response.status === 404) return null;
@@ -25,9 +25,9 @@ export async function getProjectDetail(slug: string): Promise<ProjectDetail | nu
   }
 }
 
-export async function getPublishedProjects(): Promise<ProjectListItem[]> {
+export async function getPublishedProjects(locale = 'en'): Promise<ProjectListItem[]> {
   try {
-    const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/projects`, {
+    const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/projects?locale=${locale}`, {
       next: { revalidate: 60 },
     });
     if (!response.ok) {

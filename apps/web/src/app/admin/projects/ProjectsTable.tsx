@@ -69,19 +69,21 @@ export function ProjectsTable({
               <TableHead className="hidden md:table-cell">Resumo</TableHead>
               <TableHead>Publicação</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead className="w-12 text-center">PT</TableHead>
               <TableHead className="w-24 text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {projects.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="py-8 text-center text-muted-foreground">
+                <TableCell colSpan={6} className="py-8 text-center text-muted-foreground">
                   Nenhum projeto cadastrado.
                 </TableCell>
               </TableRow>
             ) : (
               projects.map((project) => {
                 const status = getStatus(project);
+                const hasTranslation = !!project.translated;
                 return (
                   <TableRow key={project.id}>
                     <TableCell className="font-medium">{project.title}</TableCell>
@@ -93,6 +95,13 @@ export function ProjectsTable({
                     </TableCell>
                     <TableCell>
                       <Badge variant={status.variant}>{status.label}</Badge>
+                    </TableCell>
+                    <TableCell className="text-center text-base">
+                      {hasTranslation ? (
+                        <span className="text-green-600">✓</span>
+                      ) : (
+                        <span className="text-red-500">✗</span>
+                      )}
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">

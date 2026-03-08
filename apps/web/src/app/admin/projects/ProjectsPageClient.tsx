@@ -30,11 +30,16 @@ export function ProjectsPageClient() {
   const openEdit = (project: ProjectAdmin) => setSheet({ open: true, project });
   const closeSheet = () => setSheet({ open: false, project: null });
 
-  const handleSubmit = (values: CreateProjectInput) => {
+  const handleSubmit = (values: CreateProjectInput, onSuccess: () => void) => {
     if (sheet.project) {
-      updateProject({ id: sheet.project.id, data: values }, { onSuccess: closeSheet });
+      updateProject({ id: sheet.project.id, data: values }, { onSuccess });
     } else {
-      createProject(values, { onSuccess: closeSheet });
+      createProject(values, {
+        onSuccess: (created) => {
+          setSheet({ open: true, project: created });
+          onSuccess();
+        },
+      });
     }
   };
 

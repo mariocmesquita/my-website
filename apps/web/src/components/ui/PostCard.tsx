@@ -1,13 +1,22 @@
 import { type PostListItem } from '@my-website/schemas/post';
 import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
-import { Heart, MessageCircle } from 'lucide-react';
+import { enUS, ptBR } from 'date-fns/locale';
+import { Heart } from 'lucide-react';
 import Image from 'next/image';
-import Link from 'next/link';
 
-export function PostCard({ post }: { post: PostListItem }) {
+import { Link } from '@/i18n/navigation';
+
+interface PostCardProps {
+  post: PostListItem;
+  locale?: string;
+}
+
+export function PostCard({ post, locale = 'en' }: PostCardProps) {
+  const dateFnsLocale = locale === 'pt' ? ptBR : enUS;
+  const datePattern = locale === 'pt' ? "dd 'de' MMM, yyyy" : 'MMM dd, yyyy';
+
   const formattedDate = post.publishDate
-    ? format(new Date(post.publishDate), "dd 'de' MMM, yyyy", { locale: ptBR })
+    ? format(new Date(post.publishDate), datePattern, { locale: dateFnsLocale })
     : null;
 
   return (
@@ -38,9 +47,6 @@ export function PostCard({ post }: { post: PostListItem }) {
           <span className="flex items-center gap-1">
             <Heart className="w-3.5 h-3.5" />
             {post.likesCount}
-          </span>
-          <span className="flex items-center gap-1">
-            <MessageCircle className="w-3.5 h-3.5" />0
           </span>
         </div>
       </div>

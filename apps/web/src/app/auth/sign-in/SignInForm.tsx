@@ -35,7 +35,8 @@ function resolveFirebaseError(code: string): string {
 export function SignInForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const next = searchParams.get('next') ?? '/admin/dashboard';
+  const rawNext = searchParams.get('next') ?? '/admin/dashboard';
+  const next = rawNext.startsWith('/') && !rawNext.startsWith('//') ? rawNext : '/admin/dashboard';
   const [generalError, setGeneralError] = useState<string | null>(null);
 
   const methods = useZodForm<SignInValues>(signInSchema);

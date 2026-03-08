@@ -7,7 +7,10 @@ import {
   ProjectDetailSchema,
   type ProjectListItem,
   ProjectListItemSchema,
+  type ProjectTranslation,
+  ProjectTranslationSchema,
   type UpdateProjectInput,
+  type UpsertProjectTranslationInput,
 } from '@my-website/schemas/project';
 import { z } from 'zod';
 
@@ -79,10 +82,38 @@ export async function deleteProject(token: string, id: string): Promise<void> {
   return handleEmptyResponse(response);
 }
 
+export async function getProjectTranslation(
+  token: string,
+  id: string,
+  locale: string,
+): Promise<ProjectTranslation | null> {
+  const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/projects/${id}/translations/${locale}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (response.status === 404) return null;
+  return handleResponse(response, ProjectTranslationSchema);
+}
+
+export async function upsertProjectTranslation(
+  token: string,
+  id: string,
+  locale: string,
+  data: UpsertProjectTranslationInput,
+): Promise<ProjectTranslation> {
+  const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/projects/${id}/translations/${locale}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify(data),
+  });
+  return handleResponse(response, ProjectTranslationSchema);
+}
+
 export type {
   CreateProjectInput,
   ProjectAdmin,
   ProjectDetail,
   ProjectListItem,
+  ProjectTranslation,
   UpdateProjectInput,
+  UpsertProjectTranslationInput,
 };

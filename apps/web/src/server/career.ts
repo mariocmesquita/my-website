@@ -2,9 +2,9 @@ import { env } from '@my-website/env';
 import { type Career, CareerSchema } from '@my-website/schemas/career';
 import { z } from 'zod';
 
-export async function getCareerData(): Promise<Career[]> {
+export async function getCareerData(locale = 'en'): Promise<Career[]> {
   try {
-    const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/career`, {
+    const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/career?locale=${locale}`, {
       next: { revalidate: 60 },
     });
     if (!response.ok) {

@@ -2,15 +2,9 @@
 
 import { type Profile } from '@my-website/schemas/profile';
 import { Github, Instagram, Linkedin } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 import { useActiveSection } from '@/hooks/useActiveSection';
-
-const NAV_ANCHORS = [
-  { label: 'Sobre mim', id: 'about' },
-  { label: 'Carreira', id: 'career' },
-  { label: 'Últimos projetos', id: 'projects' },
-  { label: 'Últimos posts', id: 'posts' },
-];
 
 const SOCIAL_ICONS: Record<string, typeof Github> = {
   github: Github,
@@ -27,7 +21,15 @@ interface SidebarProps {
 }
 
 export function Sidebar({ profile }: SidebarProps) {
+  const t = useTranslations('sidebar');
   const activeSection = useActiveSection();
+
+  const NAV_ANCHORS = [
+    { label: t('about'), id: 'about' },
+    { label: t('career'), id: 'career' },
+    { label: t('latestProjects'), id: 'projects' },
+    { label: t('latestPosts'), id: 'posts' },
+  ];
 
   const name = profile?.name ?? '';
   const position = profile?.position ?? '';

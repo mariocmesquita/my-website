@@ -1,6 +1,7 @@
 'use client';
 
 import { Check, ChevronDown, Search } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { type RefObject } from 'react';
 
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -30,6 +31,8 @@ export function FilterPopover({
   onClear,
   onOpenChange,
 }: FilterPopoverProps) {
+  const t = useTranslations('filter');
+
   return (
     <Popover onOpenChange={onOpenChange}>
       <PopoverTrigger asChild>
@@ -54,7 +57,7 @@ export function FilterPopover({
             <input
               ref={searchRef}
               type="text"
-              placeholder="Filtrar..."
+              placeholder={t('placeholder')}
               value={searchValue}
               onChange={(e) => onSearchChange(e.target.value)}
               className="w-full h-8 pl-8 pr-3 bg-brand/5 rounded-lg font-sans text-[13px] text-foreground placeholder:text-foreground/40 focus:outline-none"
@@ -63,7 +66,7 @@ export function FilterPopover({
         </div>
         <div className="max-h-52 overflow-y-auto py-1">
           {options.length === 0 ? (
-            <p className="px-3 py-2 text-[13px] text-foreground/40 font-sans">Nenhuma opção</p>
+            <p className="px-3 py-2 text-[13px] text-foreground/40 font-sans">{t('noOptions')}</p>
           ) : (
             options.map((opt) => {
               const active = selected.includes(opt);
@@ -86,7 +89,7 @@ export function FilterPopover({
               onClick={onClear}
               className="w-full text-center font-sans text-[12px] text-foreground/50 hover:text-foreground/80 transition-colors py-0.5"
             >
-              Limpar seleção
+              {t('clearSelection')}
             </button>
           </div>
         )}

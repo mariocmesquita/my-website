@@ -11,12 +11,17 @@ import { getPublishedPosts } from '@/server/post';
 import { getProfileData } from '@/server/profile';
 import { getPublishedProjects } from '@/server/project';
 
-export default async function Home() {
+interface HomeProps {
+  params: Promise<{ locale: string }>;
+}
+
+export default async function Home({ params }: HomeProps) {
+  const { locale } = await params;
   const [profile, careers, projects, posts] = await Promise.all([
-    getProfileData(),
-    getCareerData(),
-    getPublishedProjects(),
-    getPublishedPosts(),
+    getProfileData(locale),
+    getCareerData(locale),
+    getPublishedProjects(locale),
+    getPublishedPosts(locale),
   ]);
 
   return (
@@ -30,8 +35,8 @@ export default async function Home() {
           <Navbar />
           <AboutSection profile={profile} />
           <CareerSection entries={careers} />
-          <ProjectsSection projects={projects} />
-          <PostsSection posts={posts} />
+          <ProjectsSection projects={projects} locale={locale} />
+          <PostsSection posts={posts} locale={locale} />
           <Footer />
         </main>
       </div>
