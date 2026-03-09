@@ -32,6 +32,9 @@ jobs:
             - name: Instalar dependências
               run: pnpm install --frozen-lockfile
 
+            - name: Gerar Prisma client
+              run: pnpm --filter api exec prisma generate
+
             - name: Verificar tipos
               run: pnpm --filter api run check-types
 
