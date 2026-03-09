@@ -8,6 +8,7 @@ async function bootstrap() {
     origin: env.NODE_ENV === 'production' ? 'https://mariocmesquita.com' : 'http://localhost:3000',
     credentials: true,
   });
-  await app.listen(env.SERVER_PORT);
+  app.setGlobalPrefix('api');
+  await app.listen(env.SERVER_PORT, '0.0.0.0');
 }
 bootstrap();
