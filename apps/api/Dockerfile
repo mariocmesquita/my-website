@@ -10,6 +10,8 @@ WORKDIR /app
 COPY . .
 RUN pnpm install --frozen-lockfile
 
+# dummy DATABASE_URL
+ENV DATABASE_URL="postgresql://dummy:dummy@localhost/dummy"
 RUN pnpm --filter api exec prisma generate
 RUN pnpm --filter api run build
 RUN pnpm --filter api deploy --prod /deploy
