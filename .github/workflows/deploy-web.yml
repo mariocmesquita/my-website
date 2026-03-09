@@ -1,4 +1,4 @@
-name: Implantar Web no VPS
+name: Deploy Web to VPS
 
 on:
     push:
@@ -8,6 +8,7 @@ on:
             - "packages/env/**"
             - "packages/schemas/**"
             - "docker-compose.yml"
+            - ".npmrc"
     workflow_dispatch:
 
 env:
@@ -15,7 +16,7 @@ env:
 
 jobs:
     verificar:
-        name: Verificar tipos e lint
+        name: Type check and lint
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4
@@ -29,17 +30,17 @@ jobs:
                   node-version: 24
                   cache: pnpm
 
-            - name: Instalar dependências
+            - name: Install dependencies
               run: pnpm install --frozen-lockfile
 
-            - name: Verificar tipos
+            - name: Type check
               run: pnpm --filter web run check-types
 
             - name: Lint
               run: pnpm --filter web exec prettier --check "src/**/*.{ts,tsx}" && pnpm --filter web exec eslint
 
     build-e-publicar:
-        name: Build e publicar imagem
+        name: Build and publish image
         needs: verificar
         runs-on: ubuntu-latest
         permissions:
@@ -54,7 +55,7 @@ jobs:
                   username: ${{ github.actor }}
                   password: ${{ secrets.GITHUB_TOKEN }}
 
-            - name: Formatar nome da imagem em minúsculas
+            - name: Lowercase image name
               run: echo "IMAGE_NAME=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')/my-website-web" >> $GITHUB_ENV
 
             - uses: docker/metadata-action@v5
@@ -85,7 +86,7 @@ jobs:
                       NEXT_PUBLIC_FIREBASE_APP_ID=${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
 
     implantar:
-        name: Implantar no VPS
+        name: Deploy to VPS
         needs: build-e-publicar
         runs-on: ubuntu-latest
         steps:
@@ -101,20 +102,9 @@ jobs:
                   script: |
                       set -e
                       cd /opt/my-website
-
-                      # Atualiza o docker-compose.yml caso tenha mudado
                       git pull origin main
-
-                      # Faz login no GHCR para puxar a nova imagem
                       echo "$GITHUB_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
-
-                      # Puxa a nova imagem do frontend
                       docker compose pull web
-
-                      # Reinicia apenas o serviço web com a nova imagem
                       docker compose up -d --no-build web
-
-                      # Remove imagens antigas sem uso
                       docker image prune -f
-
                       docker ps

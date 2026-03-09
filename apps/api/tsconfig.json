@@ -9,7 +9,7 @@
     "paths": {
       "@/*": ["src/*"],
       "@common/*": ["src/common/*"],
-      "@generated/prisma": ["generated/prisma/client"]
+      "@generated/prisma": ["generated/prisma/client/client"]
     }
   }
 }
