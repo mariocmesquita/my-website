@@ -89,15 +89,15 @@ jobs:
         needs: build-e-publicar
         runs-on: ubuntu-latest
         steps:
-            - uses: appleboy/ssh-action@v1.0.0
+            - uses: appleboy/ssh-action@v1
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  GITHUB_ACTOR: ${{ github.actor }}
               with:
                   host: ${{ secrets.VPS_HOST }}
                   username: ${{ secrets.VPS_USER }}
                   key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
                   envs: GITHUB_TOKEN,GITHUB_ACTOR
-                  env:
-                      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                      GITHUB_ACTOR: ${{ github.actor }}
                   script: |
                       set -e
                       cd /opt/my-website
