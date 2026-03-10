@@ -14,7 +14,7 @@ RUN pnpm install --frozen-lockfile
 ENV DATABASE_URL="postgresql://dummy:dummy@localhost/dummy"
 RUN pnpm --filter api exec prisma generate
 RUN pnpm --filter api run build
-RUN pnpm --filter api deploy --prod /deploy
+RUN pnpm --filter api deploy --prod --legacy /deploy
 
 # ---- runner ----
 FROM node:24-alpine AS runner

@@ -61,7 +61,7 @@ jobs:
                   password: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Lowercase image name
-              run: echo "IMAGE_NAME=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')/my-website-api" >> $GITHUB_ENV
+              run: echo "IMAGE_NAME=$(echo '${{ github.actor }}' | tr '[:upper:]' '[:lower:]')/my-website-api" >> $GITHUB_ENV
 
             - uses: docker/metadata-action@v5
               id: meta
