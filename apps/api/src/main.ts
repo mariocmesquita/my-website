@@ -8,7 +8,7 @@ async function bootstrap() {
     origin: env.NODE_ENV === 'production' ? 'https://mariocmesquita.com' : 'http://localhost:3000',
     credentials: true,
   });
-  app.setGlobalPrefix('api');
+  app.setGlobalPrefix('api', { exclude: ['health'] });
   await app.listen(env.SERVER_PORT, '0.0.0.0');
 }
 bootstrap();
