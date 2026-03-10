@@ -15,8 +15,8 @@ env:
     REGISTRY: ghcr.io
 
 jobs:
-    verificar:
-        name: Type check and lint
+    check:
+        name: Type Check and Lint
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4
@@ -43,8 +43,8 @@ jobs:
               run: pnpm --filter api exec prettier --check "src/**/*.ts" && pnpm --filter api exec eslint "{src,apps,libs,test}/**/*.ts"
 
     build-e-publicar:
-        name: Build and publish image
-        needs: verificar
+        name: Build and Publish Image
+        needs: check
         runs-on: ubuntu-latest
         permissions:
             contents: read
@@ -82,31 +82,44 @@ jobs:
                   cache-from: type=gha
                   cache-to: type=gha,mode=max
 
-    implantar:
+    deploy:
         name: Deploy to VPS
         needs: build-e-publicar
         runs-on: ubuntu-latest
         steps:
-            - name: Testar conectividade com VPS
+            - name: Write SSH key
               run: |
-                  echo "Testando conectividade na porta 22..."
-                  nc -zv ${{ secrets.VPS_HOST }} 22 && echo "Porta 22 acessível" || echo "Porta 22 INACESSÍVEL"
+                  mkdir -p ~/.ssh
+                  echo "${{ secrets.VPS_SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+                  chmod 600 ~/.ssh/deploy_key
+                  ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
 
-            - uses: appleboy/ssh-action@v1
+            - name: Deploy via SSH (with retry)
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   GITHUB_ACTOR: ${{ github.actor }}
-              with:
-                  host: ${{ secrets.VPS_HOST }}
-                  username: ${{ secrets.VPS_USER }}
-                  key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
-                  envs: GITHUB_TOKEN,GITHUB_ACTOR
-                  script: |
-                      set -e
-                      cd /opt/my-website
-                      git pull origin main
-                      echo "$GITHUB_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
-                      docker compose pull api
-                      docker compose up -d --no-build api
-                      docker image prune -f
-                      docker ps
+              run: |
+                  set -e
+                  SSH="ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}"
+
+                  for attempt in 1 2 3; do
+                    echo "Attempt $attempt..."
+                    if $SSH GITHUB_TOKEN="$GITHUB_TOKEN" GITHUB_ACTOR="$GITHUB_ACTOR" bash << 'ENDSSH'
+                  set -e
+                  cd /opt/my-website
+                  git pull origin main
+                  echo "$GITHUB_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+                  docker compose pull api
+                  docker compose up -d --no-build api
+                  docker image prune -f
+                  docker ps
+                  ENDSSH
+                    then
+                      echo "Deploy succeeded."
+                      exit 0
+                    fi
+                    echo "Attempt $attempt failed. Waiting $((attempt * 15))s..."
+                    sleep $((attempt * 15))
+                  done
+                  echo "Deploy failed after 3 attempts."
+                  exit 1
