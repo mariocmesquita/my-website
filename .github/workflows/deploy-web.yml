@@ -90,6 +90,11 @@ jobs:
         needs: build-e-publicar
         runs-on: ubuntu-latest
         steps:
+            - name: Testar conectividade com VPS
+              run: |
+                  echo "Testando conectividade na porta 22..."
+                  nc -zv ${{ secrets.VPS_HOST }} 22 && echo "Porta 22 acessível" || echo "Porta 22 INACESSÍVEL"
+
             - uses: appleboy/ssh-action@v1
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
