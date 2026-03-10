@@ -21,7 +21,7 @@ export function LikeButton({ slug, initialLikesCount, initialLiked }: LikeButton
 
     setIsLoading(true);
     try {
-      const res = await fetch(`/api/posts/${slug}/like`, { method: 'POST' });
+      const res = await fetch(`/web-api/posts/${slug}/like`, { method: 'POST' });
       if (res.ok) {
         const json = await res.json();
         setLikesCount(json.data.likesCount);

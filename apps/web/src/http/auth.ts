@@ -1,5 +1,5 @@
 export async function postSession(idToken: string): Promise<void> {
-  const response = await fetch('/api/auth/session', {
+  const response = await fetch('/web-api/auth/session', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ idToken }),
@@ -13,7 +13,7 @@ export async function postSession(idToken: string): Promise<void> {
 }
 
 export async function deleteSession(): Promise<void> {
-  const response = await fetch('/api/auth/session', { method: 'DELETE' });
+  const response = await fetch('/web-api/auth/session', { method: 'DELETE' });
 
   if (!response.ok) {
     throw new Error('Erro ao encerrar sessão.');
