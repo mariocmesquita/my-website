@@ -24,8 +24,6 @@ RUN addgroup -g 1001 -S nodejs \
     && adduser -S nestjs -u 1001
 
 COPY --from=builder --chown=nestjs:nodejs /deploy/node_modules ./node_modules
-COPY --from=builder --chown=nestjs:nodejs /app/node_modules/prisma ./node_modules/prisma
-COPY --from=builder --chown=nestjs:nodejs /app/node_modules/.bin/prisma ./node_modules/.bin/prisma
 COPY --from=builder --chown=nestjs:nodejs /app/apps/api/dist ./dist
 COPY --from=builder --chown=nestjs:nodejs /app/apps/api/generated ./generated
 COPY --from=builder --chown=nestjs:nodejs /app/apps/api/prisma ./prisma
