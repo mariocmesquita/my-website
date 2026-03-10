@@ -27,6 +27,7 @@ COPY --from=builder --chown=nestjs:nodejs /deploy/node_modules ./node_modules
 COPY --from=builder --chown=nestjs:nodejs /app/apps/api/dist ./dist
 COPY --from=builder --chown=nestjs:nodejs /app/apps/api/generated ./generated
 COPY --from=builder --chown=nestjs:nodejs /app/apps/api/prisma ./prisma
+COPY --from=builder --chown=nestjs:nodejs /app/apps/api/prisma.config.ts ./prisma.config.ts
 
 USER nestjs
 
