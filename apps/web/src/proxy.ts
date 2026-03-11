@@ -1,38 +1,34 @@
 import { type NextRequest, NextResponse } from 'next/server';
+import createMiddleware from 'next-intl/middleware';
 
 import { routing } from '@/i18n/routing';
 import { getSession } from '@/server/session';
 
 const SUPPORTED_LOCALES: string[] = [...routing.locales];
-const DEFAULT_LOCALE = routing.defaultLocale;
-const LOCALE_COOKIE = 'NEXT_LOCALE';
 
 const PROTECTED_ROUTES = ['/admin'];
 const AUTH_ROUTES = ['/auth/sign-in'];
 const LOGIN_PAGE = '/auth/sign-in';
 
-// Routes that should be served under a locale prefix
-const PUBLIC_PATHS = ['/', '/blog', '/projects'];
+const intlMiddleware = createMiddleware(routing);
 
-function getLocale(request: NextRequest): string {
-  // 1. Cookie override
-  const cookie = request.cookies.get(LOCALE_COOKIE)?.value;
-  if (cookie && SUPPORTED_LOCALES.includes(cookie)) return cookie;
+function matchesPath(pathname: string, base: string): boolean {
+  return pathname === base || pathname.startsWith(`${base}/`);
+}
 
-  // 2. Accept-Language header
-  const acceptLanguage = request.headers.get('accept-language') ?? '';
-  const preferred = acceptLanguage.split(',')[0]?.split('-')[0]?.toLowerCase() ?? '';
-  if (preferred === 'pt') return 'pt';
-
-  return DEFAULT_LOCALE;
+function getPathLocale(pathname: string): string | null {
+  return (
+    SUPPORTED_LOCALES.find(
+      (locale) => pathname === `/${locale}` || pathname.startsWith(`/${locale}/`),
+    ) ?? null
+  );
 }
 
 export default async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Skip locale routing for admin, auth, api, and static files
-  const isProtected = PROTECTED_ROUTES.some((route) => pathname.startsWith(route));
-  const isAuthRoute = AUTH_ROUTES.some((route) => pathname.startsWith(route));
+  const isProtected = PROTECTED_ROUTES.some((route) => matchesPath(pathname, route));
+  const isAuthRoute = AUTH_ROUTES.some((route) => matchesPath(pathname, route));
 
   if (isProtected) {
     const session = await getSession();
@@ -52,36 +48,20 @@ export default async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Check if path already has a locale prefix
-  const pathnameHasLocale = SUPPORTED_LOCALES.some(
-    (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`,
-  );
+  const pathLocale = getPathLocale(pathname);
 
-  if (pathnameHasLocale) {
-    const locale =
-      SUPPORTED_LOCALES.find((l) => pathname.startsWith(`/${l}/`) || pathname === `/${l}`) ??
-      DEFAULT_LOCALE;
-    const requestHeaders = new Headers(request.headers);
-    requestHeaders.set('x-next-intl-locale', locale);
-    return NextResponse.next({ request: { headers: requestHeaders } });
+  if (pathLocale !== null) {
+    const strippedPath = pathname.slice(`/${pathLocale}`.length) || '/';
+    const isStrippedProtected = PROTECTED_ROUTES.some((r) => matchesPath(strippedPath, r));
+    const isStrippedAuth = AUTH_ROUTES.some((r) => matchesPath(strippedPath, r));
+    if (isStrippedProtected || isStrippedAuth) {
+      return NextResponse.redirect(new URL(strippedPath, request.url));
+    }
   }
 
-  // Redirect public routes to locale-prefixed version
-  const isPublicPath =
-    pathname === '/' || PUBLIC_PATHS.some((p) => p !== '/' && pathname.startsWith(p));
-
-  if (isPublicPath) {
-    const locale = getLocale(request);
-    const url = new URL(`/${locale}${pathname === '/' ? '' : pathname}`, request.url);
-    url.search = request.nextUrl.search;
-    const response = NextResponse.redirect(url);
-    response.cookies.set(LOCALE_COOKIE, locale, { path: '/', maxAge: 60 * 60 * 24 * 365 });
-    return response;
-  }
-
-  return NextResponse.next();
+  return intlMiddleware(request);
 }
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|.*\\.png$|.*\\.svg$).*)'],
+  matcher: ['/((?!web-api|_next/static|_next/image|favicon.ico|.*\\.png$|.*\\.svg$).*)'],
 };

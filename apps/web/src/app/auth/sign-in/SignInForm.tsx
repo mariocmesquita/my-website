@@ -1,7 +1,7 @@
 'use client';
 
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { FormProvider } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -33,7 +33,6 @@ function resolveFirebaseError(code: string): string {
 }
 
 export function SignInForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const rawNext = searchParams.get('next') ?? '/admin/dashboard';
   const next = rawNext.startsWith('/') && !rawNext.startsWith('//') ? rawNext : '/admin/dashboard';
@@ -54,8 +53,7 @@ export function SignInForm() {
       await postSession(idToken);
 
       toast.success('Login realizado com sucesso!');
-      router.push(next);
-      router.refresh();
+      window.location.replace(next);
     } catch (error) {
       const code = (error as { code?: string }).code ?? '';
       const message = resolveFirebaseError(code);
