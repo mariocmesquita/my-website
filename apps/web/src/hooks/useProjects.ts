@@ -132,6 +132,7 @@ export function useUpsertProjectTranslation() {
     },
     onSuccess: (updated, { id, locale }) => {
       queryClient.setQueryData(['projects', id, 'translation', locale], updated);
+      queryClient.invalidateQueries({ queryKey: PROJECTS_QUERY_KEY });
       toast.success('Tradução salva com sucesso!');
     },
     onError: (error: Error) => {

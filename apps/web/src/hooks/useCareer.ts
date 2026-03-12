@@ -139,6 +139,7 @@ export function useUpsertCareerTranslation() {
     },
     onSuccess: (updated, { id, locale }) => {
       queryClient.setQueryData(['career', id, 'translation', locale], updated);
+      queryClient.invalidateQueries({ queryKey: CAREERS_ADMIN_QUERY_KEY });
       toast.success('Tradução salva com sucesso!');
     },
     onError: (error: Error) => {

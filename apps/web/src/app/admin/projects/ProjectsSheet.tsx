@@ -42,6 +42,7 @@ export function ProjectsSheet({
 
   const handleLocaleDialogDismiss = () => {
     setShowLocaleDialog(false);
+    setLocale('en');
     onOpenChange(false);
   };
 

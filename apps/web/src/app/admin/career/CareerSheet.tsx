@@ -39,6 +39,7 @@ export function CareerSheet({
 
   const handleLocaleDialogDismiss = () => {
     setShowLocaleDialog(false);
+    setLocale('en');
     onOpenChange(false);
   };
 
