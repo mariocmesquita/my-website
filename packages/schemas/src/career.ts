@@ -21,8 +21,15 @@ export const CreateCareerSchema = z.object({
     .string()
     .min(1, "Cargo é obrigatório.")
     .max(100, "Cargo deve ter no máximo 100 caracteres."),
-  startDate: z.string().min(1, "Data de início é obrigatória."),
-  endDate: z.string().nullable().optional(),
+  startDate: z
+    .string()
+    .min(1, "Data de início é obrigatória.")
+    .regex(/^\d{4}-(?:0[1-9]|1[0-2])-01$/, "Data de início inválida."),
+  endDate: z
+    .string()
+    .regex(/^\d{4}-(?:0[1-9]|1[0-2])-01$/, "Data de fim inválida.")
+    .nullable()
+    .optional(),
   content: z.string().min(1, "Conteúdo é obrigatório."),
 });
 

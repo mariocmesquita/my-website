@@ -5,8 +5,8 @@ import { useEffect } from 'react';
 import { FormProvider } from 'react-hook-form';
 
 import { FormButton } from '@/components/form/FormButton';
-import { FormDatePicker } from '@/components/form/FormDatePicker';
 import { FormField } from '@/components/form/FormField';
+import { FormMonthYearInput } from '@/components/form/FormMonthYearInput';
 import { FormTextarea } from '@/components/form/FormTextarea';
 import { useZodForm } from '@/hooks/useZodForm';
 import { type Career, type CreateCareerInput } from '@/http/career';
@@ -49,8 +49,13 @@ export function CareerForm({ career, isSubmitting, onSubmit }: CareerFormProps) 
         <FormField name="company" label="Empresa" placeholder="Ex: Acme Inc." maxLength={100} />
         <FormField name="role" label="Cargo" placeholder="Ex: Tech Lead" maxLength={100} />
         <div className="grid grid-cols-2 gap-4">
-          <FormDatePicker name="startDate" label="Início" />
-          <FormDatePicker name="endDate" label="Fim" hint="Em branco = emprego atual" nullable />
+          <FormMonthYearInput name="startDate" label="Início" />
+          <FormMonthYearInput
+            name="endDate"
+            label="Fim"
+            hint="Em branco = emprego atual"
+            nullable
+          />
         </div>
         <FormTextarea
           name="content"
