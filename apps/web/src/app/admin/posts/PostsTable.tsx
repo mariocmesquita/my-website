@@ -4,6 +4,7 @@ import { Pencil, Plus, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 
 import { Badge } from '@/components/ui/badge';
+import { DeleteConfirmDialog } from '@/components/ui/delete-confirm-dialog';
 import {
   Table,
   TableBody,
@@ -108,14 +109,15 @@ export function PostsTable({ posts, deletingId, onDelete }: PostsTableProps) {
                         >
                           <Pencil size={15} />
                         </Link>
-                        <button
-                          onClick={() => onDelete(post.id)}
-                          disabled={deletingId === post.id}
-                          className="rounded p-1.5 text-muted-foreground transition hover:bg-destructive/10 hover:text-destructive disabled:opacity-50"
-                          title="Remover"
-                        >
-                          <Trash2 size={15} />
-                        </button>
+                        <DeleteConfirmDialog onConfirm={() => onDelete(post.id)}>
+                          <button
+                            disabled={deletingId === post.id}
+                            className="rounded p-1.5 text-muted-foreground transition hover:bg-destructive/10 hover:text-destructive disabled:opacity-50"
+                            title="Remover"
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        </DeleteConfirmDialog>
                       </div>
                     </TableCell>
                   </TableRow>

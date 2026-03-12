@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "env:load": "dotenv -e ../../.env --",
-    "dev": "pnpm env:load next dev --port 3000",
+    "dev": "pnpm env:load next dev --port ${PORT:-3000}",
     "build": "next build",
     "start": "next start",
     "lint": "prettier --write \"src/**/*.{ts,tsx}\" && eslint",

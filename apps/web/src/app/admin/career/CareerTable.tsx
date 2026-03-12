@@ -2,6 +2,7 @@
 
 import { Pencil, Plus, Trash2 } from 'lucide-react';
 
+import { DeleteConfirmDialog } from '@/components/ui/delete-confirm-dialog';
 import {
   Table,
   TableBody,
@@ -91,14 +92,15 @@ export function CareerTable({ careers, deletingId, onNew, onEdit, onDelete }: Ca
                         >
                           <Pencil size={15} />
                         </button>
-                        <button
-                          onClick={() => onDelete(career.id)}
-                          disabled={deletingId === career.id}
-                          className="rounded p-1.5 text-muted-foreground transition hover:bg-destructive/10 hover:text-destructive disabled:opacity-50"
-                          title="Remover"
-                        >
-                          <Trash2 size={15} />
-                        </button>
+                        <DeleteConfirmDialog onConfirm={() => onDelete(career.id)}>
+                          <button
+                            disabled={deletingId === career.id}
+                            className="rounded p-1.5 text-muted-foreground transition hover:bg-destructive/10 hover:text-destructive disabled:opacity-50"
+                            title="Remover"
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        </DeleteConfirmDialog>
                       </div>
                     </TableCell>
                   </TableRow>
