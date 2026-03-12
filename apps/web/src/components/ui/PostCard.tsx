@@ -22,15 +22,15 @@ export function PostCard({ post, locale = 'en' }: PostCardProps) {
   return (
     <Link
       href={`/blog/${post.slug}`}
-      className="group flex items-start gap-5 -mx-4 px-4 py-3 rounded-2xl hover:bg-brand/5 transition-colors"
+      className="group flex flex-col md:flex-row md:items-start gap-3 md:gap-5 -mx-4 px-4 py-3 rounded-2xl hover:bg-brand/5 transition-colors"
     >
-      <div className="relative w-42 h-30 rounded-xl border-2 border-brand/60 overflow-hidden shrink-0 bg-gradient-to-br from-stone-200 to-stone-300">
+      <div className="relative w-full aspect-video md:w-42 md:h-30 md:aspect-auto md:shrink-0 rounded-xl border-2 border-brand/60 overflow-hidden bg-gradient-to-br from-stone-200 to-stone-300">
         {post.bannerImage ? (
           <Image
             src={post.bannerImage}
             alt={post.title}
             fill
-            sizes="168px"
+            sizes="(max-width: 768px) 100vw, 168px"
             className="object-cover"
           />
         ) : null}

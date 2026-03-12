@@ -13,15 +13,15 @@ export function ProjectCard({ project }: ProjectCardProps) {
   return (
     <Link
       href={`/projects/${project.slug}`}
-      className="group flex items-start gap-5 -mx-4 px-4 py-3 rounded-2xl hover:bg-brand/10 transition-colors"
+      className="group flex flex-col md:flex-row md:items-start gap-3 md:gap-5 -mx-4 px-4 py-3 rounded-2xl hover:bg-brand/10 transition-colors"
     >
-      <div className="relative h-30 w-42 shrink-0 overflow-hidden rounded-xl border-2 border-brand/60">
+      <div className="relative w-full aspect-video md:w-42 md:h-30 md:aspect-auto md:shrink-0 overflow-hidden rounded-xl border-2 border-brand/60">
         {project.bannerImage ? (
           <Image
             src={project.bannerImage}
             alt={project.title}
             fill
-            sizes="168px"
+            sizes="(max-width: 768px) 100vw, 168px"
             className="object-cover"
           />
         ) : (

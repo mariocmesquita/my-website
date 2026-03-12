@@ -47,12 +47,14 @@ export function Sidebar({ profile }: SidebarProps) {
     }));
 
   return (
-    <div className="px-10 pt-12 lg:pt-20 pb-10 font-spectral">
-      <h1 className="text-[28px] font-bold text-foreground leading-tight">{name}</h1>
-      <p className="text-[14px] text-foreground/80 mt-1 font-sans">{position}</p>
-      <p className="text-[16px] text-foreground mt-5 leading-[1.7] max-w-[280px]">{description}</p>
+    <div className="px-5 md:px-8 lg:px-10 pt-6 lg:pt-20 pb-6 lg:pb-10 font-spectral">
+      <h1 className="text-[24px] lg:text-[28px] font-bold text-foreground leading-tight">{name}</h1>
+      <p className="text-[13px] lg:text-[14px] text-foreground/80 mt-1 font-sans">{position}</p>
+      <p className="text-[15px] lg:text-[16px] text-foreground mt-4 lg:mt-5 leading-[1.7] max-w-[280px]">
+        {description}
+      </p>
 
-      <nav className="mt-8 flex flex-col gap-2 font-sans">
+      <nav className="hidden lg:flex mt-8 flex-col gap-2 font-sans">
         {NAV_ANCHORS.map(({ id, label }) => {
           const isActive = activeSection === id;
           return (
@@ -71,7 +73,7 @@ export function Sidebar({ profile }: SidebarProps) {
         })}
       </nav>
 
-      <div className="flex flex-col gap-2.5 mt-6">
+      <div className="flex flex-col gap-2.5 mt-4 lg:mt-6">
         <div className="flex items-center gap-3">
           {displaySocialLinks.length > 0
             ? displaySocialLinks.map(({ platform, icon: Icon, href, label }) => (

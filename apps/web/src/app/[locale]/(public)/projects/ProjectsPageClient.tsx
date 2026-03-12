@@ -71,8 +71,8 @@ export function ProjectsPageClient({ projects }: ProjectsPageClientProps) {
 
   return (
     <div>
-      <div className="flex flex-wrap items-center gap-3 mb-8">
-        <div className="relative flex-1 min-w-48">
+      <div className="space-y-3 md:space-y-0 md:flex md:flex-wrap md:items-center md:gap-3 mb-8">
+        <div className="relative w-full md:flex-1 md:min-w-48">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/40 pointer-events-none" />
           <input
             type="text"
@@ -83,41 +83,43 @@ export function ProjectsPageClient({ projects }: ProjectsPageClientProps) {
           />
         </div>
 
-        {allTechs.length > 0 && (
-          <FilterPopover
-            label={t('techFilter')}
-            count={selectedTechs.length}
-            searchRef={techSearchRef}
-            searchValue={techSearch}
-            onSearchChange={setTechSearch}
-            options={filteredTechOptions}
-            selected={selectedTechs}
-            onToggle={toggleTech}
-            onClear={() => updateParams({ tech: null })}
-            onOpenChange={(open) => {
-              if (open) setTimeout(() => techSearchRef.current?.focus(), 50);
-              else setTechSearch('');
-            }}
-          />
-        )}
+        <div className="flex flex-wrap items-center gap-2 md:gap-3">
+          {allTechs.length > 0 && (
+            <FilterPopover
+              label={t('techFilter')}
+              count={selectedTechs.length}
+              searchRef={techSearchRef}
+              searchValue={techSearch}
+              onSearchChange={setTechSearch}
+              options={filteredTechOptions}
+              selected={selectedTechs}
+              onToggle={toggleTech}
+              onClear={() => updateParams({ tech: null })}
+              onOpenChange={(open) => {
+                if (open) setTimeout(() => techSearchRef.current?.focus(), 50);
+                else setTechSearch('');
+              }}
+            />
+          )}
 
-        <button
-          onClick={toggleSort}
-          className="inline-flex items-center gap-2 h-10 px-4 bg-brand/5 border border-brand/20 rounded-xl font-sans text-[14px] text-foreground/70 hover:bg-brand/10 hover:border-brand/40 transition-colors whitespace-nowrap"
-        >
-          <ArrowUpDown className="w-3.5 h-3.5" />
-          {sort === 'newest' ? t('sortNewest') : t('sortOldest')}
-        </button>
-
-        {hasFilters && (
           <button
-            onClick={clearFilters}
-            className="inline-flex items-center gap-1.5 h-10 px-3 text-[13px] font-sans text-foreground/50 hover:text-foreground/80 transition-colors"
+            onClick={toggleSort}
+            className="inline-flex items-center gap-2 h-10 px-4 bg-brand/5 border border-brand/20 rounded-xl font-sans text-[14px] text-foreground/70 hover:bg-brand/10 hover:border-brand/40 transition-colors whitespace-nowrap"
           >
-            <X className="w-3.5 h-3.5" />
-            {t('clear')}
+            <ArrowUpDown className="w-3.5 h-3.5" />
+            {sort === 'newest' ? t('sortNewest') : t('sortOldest')}
           </button>
-        )}
+
+          {hasFilters && (
+            <button
+              onClick={clearFilters}
+              className="inline-flex items-center gap-1.5 h-10 px-3 text-[13px] font-sans text-foreground/50 hover:text-foreground/80 transition-colors"
+            >
+              <X className="w-3.5 h-3.5" />
+              {t('clear')}
+            </button>
+          )}
+        </div>
       </div>
 
       {filtered.length > 0 ? (

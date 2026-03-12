@@ -22,20 +22,20 @@ export async function RelatedPosts({ posts, locale }: RelatedPostsProps) {
       <p className="font-sans text-[11px] uppercase tracking-[0.14em] text-foreground/40 mb-6">
         {t('relatedPosts')}
       </p>
-      <div className="space-y-5">
+      <div className="space-y-3 md:space-y-5">
         {posts.map((post) => (
           <Link
             key={post.id}
             href={`/blog/${post.slug}`}
-            className="group flex items-start gap-5 -mx-4 px-4 py-3 rounded-2xl hover:bg-brand/10 transition-colors"
+            className="group flex flex-col md:flex-row md:items-start gap-3 md:gap-5 -mx-4 px-4 py-3 rounded-2xl hover:bg-brand/10 transition-colors"
           >
-            <div className="relative h-20 w-32 shrink-0 overflow-hidden rounded-xl border-2 border-brand/60">
+            <div className="relative w-full aspect-video md:w-32 md:h-20 md:aspect-auto md:shrink-0 overflow-hidden rounded-xl border-2 border-brand/60">
               {post.bannerImage ? (
                 <Image
                   src={post.bannerImage}
                   alt={post.title}
                   fill
-                  sizes="128px"
+                  sizes="(max-width: 768px) 100vw, 128px"
                   className="object-cover"
                 />
               ) : (

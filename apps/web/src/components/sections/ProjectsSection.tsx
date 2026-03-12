@@ -15,11 +15,13 @@ export function ProjectsSection({ projects, locale }: ProjectsSectionProps) {
   const visible = projects.slice(0, 3);
 
   return (
-    <section id="projects" className="mt-16">
-      <h2 className="font-spectral font-bold text-[19px] text-foreground mb-7">{t('heading')}</h2>
+    <section id="projects" className="mt-10 lg:mt-16">
+      <h2 className="font-spectral font-bold text-[19px] text-foreground mb-4 lg:mb-7">
+        {t('heading')}
+      </h2>
 
       {visible.length > 0 ? (
-        <div className="space-y-9">
+        <div className="space-y-5 lg:space-y-9">
           {visible.map((project) => (
             <ProjectCard key={project.id} project={project} locale={locale} />
           ))}
@@ -30,7 +32,7 @@ export function ProjectsSection({ projects, locale }: ProjectsSectionProps) {
 
       <Link
         href="/projects"
-        className="inline-flex items-center gap-1 mt-7 font-sans text-[14px] text-olive hover:opacity-75 transition-opacity"
+        className="inline-flex items-center gap-1 mt-4 lg:mt-7 font-sans text-[14px] text-olive hover:opacity-75 transition-opacity"
       >
         {t('viewAll')}
         <ArrowUpRight className="w-3.5 h-3.5" />

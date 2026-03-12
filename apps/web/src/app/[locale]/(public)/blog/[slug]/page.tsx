@@ -41,12 +41,18 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="mx-auto max-w-[1200px] px-6 pb-20">
+      <div className="sticky top-0 z-50 lg:hidden">
         <Navbar />
+      </div>
+
+      <div className="mx-auto max-w-[1200px] px-5 md:px-8 lg:px-6 pb-20">
+        <div className="hidden lg:block">
+          <Navbar />
+        </div>
 
         <Link
           href="/blog"
-          className="inline-flex items-center gap-1 font-sans text-[13px] text-foreground/50 hover:text-olive transition-colors mb-8"
+          className="inline-flex items-center gap-1 font-sans text-[13px] text-foreground/50 hover:text-olive transition-colors mb-8 pt-6 lg:pt-0"
         >
           <ChevronLeft className="w-3.5 h-3.5" />
           {t('backToList')}
@@ -75,7 +81,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
               {formattedDate}
             </p>
           )}
-          <h1 className="font-spectral font-bold text-[34px] text-foreground leading-tight mb-3">
+          <h1 className="font-spectral font-bold text-[26px] md:text-[34px] text-foreground leading-tight mb-3">
             {post.title}
           </h1>
           <p className="font-spectral text-[17px] text-foreground/65 leading-[1.7] mb-6">

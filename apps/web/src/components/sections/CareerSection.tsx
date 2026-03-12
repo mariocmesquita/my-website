@@ -24,13 +24,15 @@ export async function CareerSection({ entries }: CareerSectionProps) {
   if (entries.length === 0) return null;
 
   return (
-    <section id="career" className="mt-16">
-      <h2 className="font-spectral font-bold text-[19px] text-foreground mb-7">{t('heading')}</h2>
+    <section id="career" className="mt-10 lg:mt-16">
+      <h2 className="font-spectral font-bold text-[19px] text-foreground mb-5 lg:mb-7">
+        {t('heading')}
+      </h2>
 
       <div className="relative">
         <div className="absolute left-[5px] top-1.5 bottom-0 w-[1.5px] bg-brand/40" />
 
-        <div className="space-y-9">
+        <div className="space-y-6 lg:space-y-9">
           {entries.map((entry) => (
             <div key={entry.id} className="relative pl-8">
               <div className="absolute left-0 top-[6px] w-[11px] h-[11px] rounded-full bg-brand border-2 border-background" />

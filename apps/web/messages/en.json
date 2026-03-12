@@ -2,7 +2,9 @@
   "nav": {
     "home": "Home",
     "projects": "Projects",
-    "blog": "Blog"
+    "blog": "Blog",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
   },
   "sidebar": {
     "about": "About me",

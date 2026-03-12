@@ -26,13 +26,21 @@ export default async function Home({ params }: HomeProps) {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Mobile: sticky full-width navbar */}
+      <div className="sticky top-0 z-50 lg:hidden">
+        <Navbar />
+      </div>
+
       <div className="mx-auto max-w-[1200px] flex flex-col lg:flex-row min-h-screen">
         <aside className="w-full lg:w-[38%] lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto lg:shrink-0">
           <Sidebar profile={profile} />
         </aside>
 
-        <main className="flex-1 min-w-0 pl-10 pr-6">
-          <Navbar />
+        <main className="flex-1 min-w-0 px-5 md:px-8 lg:pl-10 lg:pr-6">
+          {/* Desktop: navbar inside main column */}
+          <div className="hidden lg:block">
+            <Navbar />
+          </div>
           <AboutSection profile={profile} />
           <CareerSection entries={careers} />
           <ProjectsSection projects={projects} locale={locale} />
