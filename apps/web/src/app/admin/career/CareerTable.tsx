@@ -48,7 +48,7 @@ export function CareerTable({ careers, deletingId, onNew, onEdit, onDelete }: Ca
         </button>
       </div>
 
-      <div className="rounded-lg border border-border">
+      <div className="overflow-hidden rounded-lg border border-border">
         <Table>
           <TableHeader>
             <TableRow>

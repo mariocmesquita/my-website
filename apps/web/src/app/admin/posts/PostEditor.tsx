@@ -394,15 +394,17 @@ export function PostEditor({ postId }: PostEditorProps) {
 
                       <div className="flex flex-col gap-1">
                         <label className="text-sm font-medium text-foreground">Resumo</label>
-                        <textarea
-                          value={ptWatch('summary') ?? ''}
-                          onChange={(e) =>
-                            ptSetValue('summary', e.target.value, { shouldValidate: true })
-                          }
-                          placeholder="Breve descrição em português"
-                          rows={3}
-                          className="w-full resize-none rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-brand"
-                        />
+                        <div className="overflow-hidden rounded-lg border border-input transition focus-within:ring-1 focus-within:ring-brand">
+                          <textarea
+                            value={ptWatch('summary') ?? ''}
+                            onChange={(e) =>
+                              ptSetValue('summary', e.target.value, { shouldValidate: true })
+                            }
+                            placeholder="Breve descrição em português"
+                            rows={3}
+                            className="block w-full resize-none bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none"
+                          />
+                        </div>
                         {ptErrors.summary && (
                           <p className="text-xs text-destructive">{ptErrors.summary.message}</p>
                         )}

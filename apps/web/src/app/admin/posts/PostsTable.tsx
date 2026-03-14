@@ -58,7 +58,7 @@ export function PostsTable({ posts, deletingId, onDelete }: PostsTableProps) {
         </Link>
       </div>
 
-      <div className="rounded-lg border border-border">
+      <div className="overflow-hidden rounded-lg border border-border">
         <Table>
           <TableHeader>
             <TableRow>

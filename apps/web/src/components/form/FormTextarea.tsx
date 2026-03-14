@@ -27,12 +27,14 @@ export function FormTextarea<
         </label>
         {hint && <span className="text-xs text-muted-foreground">{hint}</span>}
       </div>
-      <textarea
-        id={String(name)}
-        {...register(name)}
-        {...props}
-        className="min-h-24 resize-y rounded-lg border-1 border-brand bg-background px-3 py-2 text-sm text-foreground outline-none transition placeholder:text-foreground/40 focus:border-brand focus:ring-2 focus:ring-brand/20 hover:border-brand/80"
-      />
+      <div className="overflow-hidden rounded-lg border-1 border-brand transition focus-within:ring-2 focus-within:ring-brand/20 hover:border-brand/80 focus-within:border-brand">
+        <textarea
+          id={String(name)}
+          {...register(name)}
+          {...props}
+          className="block min-h-24 w-full resize-y bg-background px-3 py-2 text-sm text-foreground outline-none placeholder:text-foreground/40"
+        />
+      </div>
       {error && <p className="text-xs text-destructive">{String(error.message)}</p>}
     </div>
   );
