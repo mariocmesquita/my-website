@@ -12,6 +12,8 @@ import {
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+
 import { SidebarNavItem } from './SidebarNavItem';
 import { SidebarProfile } from './SidebarProfile';
 
@@ -74,20 +76,29 @@ export function AdminSidebar({ email }: AdminSidebarProps) {
 
       {/* Collapse toggle */}
       <div className="border-t border-brand-foreground/10 px-2 py-2">
-        <button
-          onClick={() => setCollapsed((c) => !c)}
-          className={`group relative flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-brand-foreground/60 transition-all duration-150 hover:bg-brand-foreground/10 hover:text-brand-foreground ${
-            collapsed ? 'justify-center' : ''
-          }`}
-        >
-          {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
-          {!collapsed && <span>Recolher</span>}
-          {collapsed && (
-            <span className="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded bg-foreground px-2 py-1 text-xs text-background opacity-0 transition-opacity group-hover:opacity-100">
+        {collapsed ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={() => setCollapsed(false)}
+                className="flex w-full items-center justify-center gap-3 rounded-lg px-3 py-2.5 text-sm text-brand-foreground/60 transition-all duration-150 hover:bg-brand-foreground/10 hover:text-brand-foreground"
+              >
+                <ChevronRight size={18} />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="right" sideOffset={8}>
               Expandir
-            </span>
-          )}
-        </button>
+            </TooltipContent>
+          </Tooltip>
+        ) : (
+          <button
+            onClick={() => setCollapsed(true)}
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-brand-foreground/60 transition-all duration-150 hover:bg-brand-foreground/10 hover:text-brand-foreground"
+          >
+            <ChevronLeft size={18} />
+            <span>Recolher</span>
+          </button>
+        )}
       </div>
 
       <SidebarProfile email={email} collapsed={collapsed} />

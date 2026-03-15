@@ -1,6 +1,8 @@
 import { type LucideIcon } from 'lucide-react';
 import Link from 'next/link';
 
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+
 interface SidebarNavItemProps {
   href: string;
   label: string;
@@ -16,10 +18,10 @@ export function SidebarNavItem({
   collapsed,
   active,
 }: SidebarNavItemProps) {
-  return (
+  const link = (
     <Link
       href={href}
-      className={`group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150 ${
+      className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150 ${
         collapsed ? 'justify-center' : ''
       } ${
         active
@@ -29,11 +31,17 @@ export function SidebarNavItem({
     >
       <Icon size={18} className="shrink-0" />
       {!collapsed && <span className="truncate">{label}</span>}
-      {collapsed && (
-        <span className="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded bg-foreground px-2 py-1 text-xs text-background opacity-0 transition-opacity group-hover:opacity-100">
-          {label}
-        </span>
-      )}
     </Link>
+  );
+
+  if (!collapsed) return link;
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>{link}</TooltipTrigger>
+      <TooltipContent side="right" sideOffset={8}>
+        {label}
+      </TooltipContent>
+    </Tooltip>
   );
 }
