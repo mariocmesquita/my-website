@@ -54,7 +54,7 @@ export function CareerSheet({
       >
         <SheetContent className="w-full sm:max-w-[560px] overflow-y-auto">
           <SheetHeader className="px-6 pt-6 pb-4">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between pr-8">
               <SheetTitle className="font-spectral text-xl font-bold text-foreground">
                 {career ? 'Editar entrada' : 'Nova entrada'}
               </SheetTitle>

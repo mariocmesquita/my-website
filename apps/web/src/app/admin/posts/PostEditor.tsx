@@ -1,11 +1,22 @@
 'use client';
 
 import { CreatePostSchema, UpsertPostTranslationSchema } from '@my-website/schemas/post';
-import { ArrowLeft, Loader2, PanelRightClose, PanelRightOpen } from 'lucide-react';
+import { parseISO, startOfDay } from 'date-fns';
+import {
+  Archive,
+  ArchiveRestore,
+  ArrowLeft,
+  Globe,
+  Languages,
+  Loader2,
+  PanelRightClose,
+  PanelRightOpen,
+  Save,
+} from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Controller, FormProvider } from 'react-hook-form';
+import { FormProvider } from 'react-hook-form';
 import { Group, Panel, usePanelRef } from 'react-resizable-panels';
 
 import { LocaleToggle } from '@/components/admin/LocaleToggle';
@@ -13,13 +24,9 @@ import { OtherLocaleDialog } from '@/components/admin/OtherLocaleDialog';
 import { FormDatePicker } from '@/components/form/FormDatePicker';
 import { FormTextarea } from '@/components/form/FormTextarea';
 import { MarkdownEditor } from '@/components/form/MarkdownEditor';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import {
   useCreatePost,
   usePostAdmin,
@@ -88,7 +95,7 @@ export function PostEditor({ postId }: PostEditorProps) {
     formState: { errors: enErrors },
     watch: enWatch,
     setValue: enSetValue,
-    control,
+    setError: enSetError,
   } = enMethods;
 
   const ptMethods = useZodForm<UpsertPostTranslationInput>(UpsertPostTranslationSchema, {
@@ -110,6 +117,8 @@ export function PostEditor({ postId }: PostEditorProps) {
   const [locale, setLocale] = useState<'en' | 'pt'>('en');
   const [showLocaleDialog, setShowLocaleDialog] = useState(false);
   const [createdPostId, setCreatedPostId] = useState<string | null>(null);
+  const [showPublishDialog, setShowPublishDialog] = useState(false);
+  const [showArchiveDialog, setShowArchiveDialog] = useState(false);
 
   useEffect(() => {
     if (post) {
@@ -134,21 +143,48 @@ export function PostEditor({ postId }: PostEditorProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoadingTranslation, translation]);
 
-  const handleSaveEn = (status: 'draft' | 'published') => {
+  const handleSaveEn = (status: 'draft' | 'published' | 'archived', skipLocaleDialog = false) => {
     enSetValue('status', status, { shouldValidate: false });
     enMethods.handleSubmit((values) => {
       const data = { ...values, status };
       if (isEditing) {
-        updatePost({ id: postId, data }, { onSuccess: () => setShowLocaleDialog(true) });
+        updatePost(
+          { id: postId, data },
+          { onSuccess: () => !skipLocaleDialog && setShowLocaleDialog(true) },
+        );
       } else {
         createPost(data, {
           onSuccess: (created) => {
-            setCreatedPostId(created.id);
-            setShowLocaleDialog(true);
+            if (skipLocaleDialog) {
+              router.push(`/admin/posts/${created.id}/edit`);
+            } else {
+              setCreatedPostId(created.id);
+              setShowLocaleDialog(true);
+            }
           },
         });
       }
     })();
+  };
+
+  const handleTryPublish = async () => {
+    const publishDate = enWatch('publishDate');
+
+    if (!publishDate) {
+      enSetError('publishDate', { message: 'Data de publicação é obrigatória para publicar.' });
+      return;
+    }
+
+    const date = parseISO(publishDate);
+    if (date < startOfDay(new Date())) {
+      enSetError('publishDate', { message: 'A data de publicação deve ser hoje ou no futuro.' });
+      return;
+    }
+
+    const isValid = await enMethods.trigger();
+    if (!isValid) return;
+
+    setShowPublishDialog(true);
   };
 
   const handleSavePt = ptMethods.handleSubmit((values) => {
@@ -171,6 +207,17 @@ export function PostEditor({ postId }: PostEditorProps) {
   };
 
   const isSaving = isCreating || isUpdating;
+  const currentStatus = enWatch('status') as 'draft' | 'published' | 'archived';
+  const currentPublishDate = enWatch('publishDate');
+
+  const statusBadge = (() => {
+    if (currentStatus === 'archived')
+      return { label: 'Arquivado', variant: 'destructive' } as const;
+    if (currentStatus === 'draft') return { label: 'Rascunho', variant: 'secondary' } as const;
+    if (currentPublishDate && new Date(currentPublishDate) > new Date())
+      return { label: 'Agendado', variant: 'outline' } as const;
+    return { label: 'Publicado', variant: 'default' } as const;
+  })();
 
   if (isEditing && isLoadingPost) {
     return (
@@ -205,35 +252,80 @@ export function PostEditor({ postId }: PostEditorProps) {
             <div className="flex items-center gap-2">
               {locale === 'en' && (
                 <>
-                  <button
-                    type="button"
-                    onClick={() => handleSaveEn('draft')}
-                    disabled={isSaving}
-                    className="rounded-lg px-4 py-2 text-sm font-medium text-foreground ring-1 ring-inset ring-brand transition hover:bg-brand/5 disabled:opacity-50"
-                  >
-                    {isSaving ? 'Salvando...' : 'Salvar rascunho'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleSaveEn('published')}
-                    disabled={isSaving}
-                    className="flex items-center gap-2 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-brand-foreground transition hover:opacity-90 disabled:opacity-50"
-                  >
-                    {isSaving && <Loader2 size={14} className="animate-spin" />}
-                    {isEditing ? 'Salvar e publicar' : 'Publicar'}
-                  </button>
+                  {currentStatus === 'draft' && (
+                    <>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleSaveEn('draft')}
+                        disabled={isSaving}
+                      >
+                        {isSaving ? <Loader2 className="animate-spin" /> : <Save />}
+                        Salvar rascunho
+                      </Button>
+                      <Button
+                        type="button"
+                        size="sm"
+                        onClick={handleTryPublish}
+                        disabled={isSaving}
+                      >
+                        {isSaving ? <Loader2 className="animate-spin" /> : <Globe />}
+                        Publicar
+                      </Button>
+                    </>
+                  )}
+
+                  {currentStatus === 'published' && isEditing && (
+                    <>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleSaveEn('published')}
+                        disabled={isSaving}
+                      >
+                        {isSaving ? <Loader2 className="animate-spin" /> : <Save />}
+                        Salvar
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => setShowArchiveDialog(true)}
+                        disabled={isSaving}
+                      >
+                        <Archive />
+                        Arquivar
+                      </Button>
+                    </>
+                  )}
+
+                  {currentStatus === 'archived' && isEditing && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleSaveEn('draft', true)}
+                      disabled={isSaving}
+                    >
+                      {isSaving ? <Loader2 className="animate-spin" /> : <ArchiveRestore />}
+                      Restaurar rascunho
+                    </Button>
+                  )}
                 </>
               )}
+
               {locale === 'pt' && isEditing && (
-                <button
+                <Button
                   type="button"
+                  size="sm"
                   onClick={handleSavePt}
                   disabled={isSavingTranslation}
-                  className="flex items-center gap-2 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-brand-foreground transition hover:opacity-90 disabled:opacity-50"
                 >
-                  {isSavingTranslation && <Loader2 size={14} className="animate-spin" />}
+                  {isSavingTranslation ? <Loader2 className="animate-spin" /> : <Languages />}
                   Salvar tradução
-                </button>
+                </Button>
               )}
               <LocaleToggle
                 locale={locale}
@@ -328,32 +420,17 @@ export function PostEditor({ postId }: PostEditorProps) {
                 {locale === 'en' ? (
                   <>
                     <div className="space-y-4 px-4 py-4">
-                      <p className="text-sm font-medium text-foreground">Publicação</p>
-
-                      <div className="flex flex-col gap-1">
-                        <label className="text-sm font-medium text-foreground">Status</label>
-                        <Controller
-                          name="status"
-                          control={control}
-                          render={({ field }) => (
-                            <Select value={field.value} onValueChange={field.onChange}>
-                              <SelectTrigger className="border-brand text-sm">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="draft">Rascunho</SelectItem>
-                                <SelectItem value="published">Publicado</SelectItem>
-                                <SelectItem value="archived">Arquivado</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          )}
-                        />
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm font-medium text-foreground">Publicação</p>
+                        <Badge variant={statusBadge.variant}>{statusBadge.label}</Badge>
                       </div>
 
                       <FormDatePicker
                         name="publishDate"
                         label="Data de publicação"
-                        hint="Opcional — agenda o post"
+                        hint="Obrigatório para publicar"
+                        disablePast
+                        showNowButton
                         toYear={new Date().getFullYear() + 5}
                       />
                     </div>
@@ -419,6 +496,30 @@ export function PostEditor({ postId }: PostEditorProps) {
           </Group>
         </div>
       </FormProvider>
+
+      <ConfirmDialog
+        open={showPublishDialog}
+        onOpenChange={setShowPublishDialog}
+        title="Confirmar publicação"
+        description="O post ficará visível publicamente após esta ação."
+        actionLabel="Publicar"
+        onConfirm={() => {
+          setShowPublishDialog(false);
+          handleSaveEn('published', true);
+        }}
+      />
+
+      <ConfirmDialog
+        open={showArchiveDialog}
+        onOpenChange={setShowArchiveDialog}
+        title="Confirmar arquivamento"
+        description="O post será removido da listagem pública. Você poderá restaurá-lo depois."
+        actionLabel="Arquivar"
+        onConfirm={() => {
+          setShowArchiveDialog(false);
+          handleSaveEn('archived', true);
+        }}
+      />
 
       <OtherLocaleDialog
         open={showLocaleDialog}

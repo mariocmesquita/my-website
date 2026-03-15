@@ -57,7 +57,7 @@ export function ProjectsSheet({
       >
         <SheetContent className="w-full overflow-y-auto sm:max-w-[600px]">
           <SheetHeader className="px-6 pb-4 pt-6">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between pr-8">
               <SheetTitle className="font-spectral text-xl font-bold text-foreground">
                 {project ? 'Editar projeto' : 'Novo projeto'}
               </SheetTitle>

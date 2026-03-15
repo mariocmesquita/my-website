@@ -1,6 +1,6 @@
 'use client';
 
-import { format, parseISO } from 'date-fns';
+import { format, parseISO, startOfDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { CalendarIcon } from 'lucide-react';
 import { useState } from 'react';
@@ -18,6 +18,8 @@ interface FormDatePickerProps<
   label: string;
   hint?: string;
   nullable?: boolean;
+  disablePast?: boolean;
+  showNowButton?: boolean;
   fromYear?: number;
   toYear?: number;
 }
@@ -30,12 +32,22 @@ export function FormDatePicker<
   label,
   hint,
   nullable = false,
+  disablePast = false,
+  showNowButton = false,
   fromYear = 1990,
   toYear = new Date().getFullYear(),
 }: FormDatePickerProps<TFieldValues, TName>) {
   const { control, formState } = useFormContext<TFieldValues>();
   const error = formState.errors[name];
   const [open, setOpen] = useState(false);
+  const [displayMonth, setDisplayMonth] = useState<Date | undefined>();
+
+  const handleOpenChange = (nextOpen: boolean, selectedDate?: Date) => {
+    if (nextOpen) {
+      setDisplayMonth(selectedDate ?? new Date());
+    }
+    setOpen(nextOpen);
+  };
 
   return (
     <div className="flex flex-col gap-1">
@@ -50,7 +62,10 @@ export function FormDatePicker<
           const selectedDate = field.value ? parseISO(field.value as string) : undefined;
 
           return (
-            <Popover open={open} onOpenChange={setOpen}>
+            <Popover
+              open={open}
+              onOpenChange={(nextOpen) => handleOpenChange(nextOpen, selectedDate)}
+            >
               <PopoverTrigger asChild>
                 <button
                   type="button"
@@ -69,27 +84,44 @@ export function FormDatePicker<
                 <Calendar
                   mode="single"
                   selected={selectedDate}
+                  month={displayMonth}
+                  onMonthChange={setDisplayMonth}
                   onSelect={(date) => {
                     field.onChange(date ? format(date, 'yyyy-MM-dd') : null);
                     if (date) setOpen(false);
                   }}
+                  disabled={disablePast ? { before: startOfDay(new Date()) } : undefined}
                   captionLayout="dropdown"
                   fromYear={fromYear}
                   toYear={toYear}
                   locale={ptBR}
                 />
-                {nullable && (
-                  <div className="border-t border-border px-3 pb-3 pt-2">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        field.onChange(null);
-                        setOpen(false);
-                      }}
-                      className="w-full rounded-md py-1.5 text-xs text-muted-foreground transition hover:text-foreground"
-                    >
-                      Limpar
-                    </button>
+                {(nullable || showNowButton) && (
+                  <div className="flex gap-1 border-t border-border px-3 pb-3 pt-2">
+                    {showNowButton && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          field.onChange(format(new Date(), 'yyyy-MM-dd'));
+                          setOpen(false);
+                        }}
+                        className="flex-1 rounded-md py-1.5 text-xs text-muted-foreground transition hover:text-foreground"
+                      >
+                        Agora
+                      </button>
+                    )}
+                    {nullable && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          field.onChange(null);
+                          setOpen(false);
+                        }}
+                        className="flex-1 rounded-md py-1.5 text-xs text-muted-foreground transition hover:text-foreground"
+                      >
+                        Limpar
+                      </button>
+                    )}
                   </div>
                 )}
               </PopoverContent>
