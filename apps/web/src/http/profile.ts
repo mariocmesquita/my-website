@@ -1,34 +1,15 @@
 import { env } from '@my-website/env';
 import {
   type Profile,
+  ProfileSchema,
   type ProfileTranslation,
   ProfileTranslationSchema,
   type SocialLinks,
-  SocialLinksSchema,
   type UpdateProfileInput,
   type UpsertProfileTranslationInput,
 } from '@my-website/schemas/profile';
-import { z } from 'zod';
 
 import { handleResponse } from './utils';
-
-export const ProfileSchema = z.object({
-  id: z.string(),
-  name: z.string().min(1, 'Nome é obrigatório.').max(50, 'Nome deve ter no máximo 50 caracteres.'),
-  position: z
-    .string()
-    .min(1, 'Cargo é obrigatório.')
-    .max(50, 'Cargo deve ter no máximo 50 caracteres.'),
-  description: z
-    .string()
-    .min(1, 'Descrição é obrigatória.')
-    .max(130, 'Descrição deve ter no máximo 130 caracteres.'),
-  bio: z.string().min(1, 'Bio é obrigatória.').max(1000, 'Bio deve ter no máximo 1000 caracteres.'),
-  email: z.email('E-mail inválido.').max(50),
-  socialLinks: SocialLinksSchema,
-  createdAt: z.iso.datetime(),
-  updatedAt: z.iso.datetime(),
-});
 
 export async function getProfileTranslation(
   token: string,
