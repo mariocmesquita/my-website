@@ -1,5 +1,15 @@
 'use client';
 
+import {
+  closestCenter,
+  DndContext,
+  type DragEndEvent,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import { arrayMove, rectSortingStrategy, SortableContext, useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { Images, Loader2, X } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
@@ -7,6 +17,51 @@ import { toast } from 'sonner';
 
 import { uploadProjectFile } from '@/http/project';
 import { useAuth } from '@/server/firebase';
+
+interface SortableScreenshotProps {
+  url: string;
+  index: number;
+  onRemove: (index: number) => void;
+}
+
+function SortableScreenshot({ url, index, onRemove }: SortableScreenshotProps) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: url,
+  });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`group relative overflow-hidden rounded-lg border border-border ${isDragging ? 'z-10 scale-105 opacity-75 shadow-lg' : 'cursor-grab active:cursor-grabbing'}`}
+      {...attributes}
+      {...listeners}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={url}
+        alt={`Screenshot ${index + 1}`}
+        className="pointer-events-none h-24 w-full object-cover"
+      />
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          onRemove(index);
+        }}
+        onPointerDown={(e) => e.stopPropagation()}
+        className="absolute right-1 top-1 flex items-center justify-center rounded-full bg-destructive p-1 text-white opacity-0 transition group-hover:opacity-100"
+      >
+        <X size={10} />
+      </button>
+    </div>
+  );
+}
 
 interface ScreenshotsFieldProps {
   name: string;
@@ -19,6 +74,8 @@ export function ScreenshotsField({ name, label }: ScreenshotsFieldProps) {
   const [isUploading, setIsUploading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const urls: string[] = watch(name) ?? [];
+
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
@@ -66,6 +123,15 @@ export function ScreenshotsField({ name, label }: ScreenshotsFieldProps) {
     );
   };
 
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = urls.indexOf(active.id as string);
+    const newIndex = urls.indexOf(over.id as string);
+    setValue(name, arrayMove(urls, oldIndex, newIndex), { shouldValidate: true });
+  };
+
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-baseline justify-between">
@@ -92,24 +158,18 @@ export function ScreenshotsField({ name, label }: ScreenshotsFieldProps) {
       </div>
 
       {urls.length > 0 && (
-        <div className="grid grid-cols-3 gap-2">
-          {urls.map((url, index) => (
-            <div
-              key={url}
-              className="group relative overflow-hidden rounded-lg border border-border"
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={url} alt={`Screenshot ${index + 1}`} className="h-24 w-full object-cover" />
-              <button
-                type="button"
-                onClick={() => remove(index)}
-                className="absolute right-1 top-1 flex items-center justify-center rounded-full bg-destructive p-1 text-white opacity-0 transition group-hover:opacity-100"
-              >
-                <X size={10} />
-              </button>
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext items={urls} strategy={rectSortingStrategy}>
+            <div className="grid grid-cols-3 gap-2">
+              {urls.map((url, index) => (
+                <SortableScreenshot key={url} url={url} index={index} onRemove={remove} />
+              ))}
             </div>
-          ))}
-        </div>
+          </SortableContext>
+          {urls.length >= 2 && (
+            <p className="text-xs text-muted-foreground">Arraste para reordenar</p>
+          )}
+        </DndContext>
       )}
 
       <input
