@@ -20,7 +20,6 @@ export function PostBannerImageField({ name, label }: PostBannerImageFieldProps)
       allowedTypes={ALLOWED_TYPES}
       typeErrorMessage="Formato inválido. Use JPG, PNG, WebP ou GIF."
       hint="JPG, PNG, WebP, GIF · máx. 5MB"
-      previewHeight="h-36"
     />
   );
 }

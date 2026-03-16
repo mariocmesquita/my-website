@@ -15,7 +15,6 @@ interface ImageUploadFieldProps {
   allowedTypes: string[];
   typeErrorMessage: string;
   hint: string;
-  previewHeight?: string;
   selectLabel?: string;
 }
 
@@ -27,7 +26,6 @@ export function ImageUploadField({
   allowedTypes,
   typeErrorMessage,
   hint,
-  previewHeight = 'h-44',
   selectLabel = 'Clique para selecionar',
 }: ImageUploadFieldProps) {
   const { watch, setValue } = useFormContext();
@@ -80,7 +78,7 @@ export function ImageUploadField({
       {url ? (
         <div className="relative w-full overflow-hidden rounded-lg border border-brand">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={url} alt="Banner" className={`${previewHeight} w-full object-cover`} />
+          <img src={url} alt="Banner" className="w-full h-auto" />
           <button
             type="button"
             onClick={handleRemove}

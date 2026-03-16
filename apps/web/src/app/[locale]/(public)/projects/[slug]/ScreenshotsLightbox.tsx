@@ -100,7 +100,22 @@ export function ScreenshotsLightbox({ project }: { project: ProjectDetail }) {
               </Button>
             </div>
 
-            <div className="relative w-full max-w-5xl" onClick={(e) => e.stopPropagation()}>
+            <div
+              className="flex w-full max-w-5xl items-center gap-3"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {screenshots.length > 1 && (
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={prev}
+                  className="w-10 h-10 shrink-0 rounded-full bg-black/40 border-white/15 text-white hover:bg-black/65 hover:text-white hover:border-white/30 backdrop-blur-sm shadow-lg"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                  <span className="sr-only">{t('previous')}</span>
+                </Button>
+              )}
+
               <div className="relative aspect-video w-full overflow-hidden rounded-2xl border border-white/10 shadow-2xl bg-black/30">
                 <Image
                   src={screenshots[activeIndex]!}
@@ -113,26 +128,15 @@ export function ScreenshotsLightbox({ project }: { project: ProjectDetail }) {
               </div>
 
               {screenshots.length > 1 && (
-                <>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={prev}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/40 border-white/15 text-white hover:bg-black/65 hover:text-white hover:border-white/30 backdrop-blur-sm shadow-lg"
-                  >
-                    <ChevronLeft className="w-5 h-5" />
-                    <span className="sr-only">{t('previous')}</span>
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={next}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/40 border-white/15 text-white hover:bg-black/65 hover:text-white hover:border-white/30 backdrop-blur-sm shadow-lg"
-                  >
-                    <ChevronRight className="w-5 h-5" />
-                    <span className="sr-only">{t('next')}</span>
-                  </Button>
-                </>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={next}
+                  className="w-10 h-10 shrink-0 rounded-full bg-black/40 border-white/15 text-white hover:bg-black/65 hover:text-white hover:border-white/30 backdrop-blur-sm shadow-lg"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                  <span className="sr-only">{t('next')}</span>
+                </Button>
               )}
             </div>
 

@@ -4,6 +4,8 @@ import Image from 'next/image';
 import { TechBadge } from '@/components/ui/TechBadge';
 import { Link } from '@/i18n/navigation';
 
+const MAX_VISIBLE_TECHS = 5;
+
 interface ProjectCardProps {
   project: ProjectListItem;
   locale?: string;
@@ -32,13 +34,18 @@ export function ProjectCard({ project }: ProjectCardProps) {
         <p className="font-spectral font-bold text-[16px] text-foreground group-hover:text-olive transition-colors">
           {project.title}
         </p>
-        <p className="font-spectral text-[16px] text-foreground/80 leading-[1.65] mt-1 max-w-lg">
+        <p className="font-spectral text-[16px] text-foreground/80 leading-[1.65] mt-1 max-w-lg line-clamp-3">
           {project.summary}
         </p>
         <div className="flex flex-wrap gap-2 mt-3">
-          {project.techStack.map((tech) => (
+          {project.techStack.slice(0, MAX_VISIBLE_TECHS).map((tech) => (
             <TechBadge key={tech} label={tech} />
           ))}
+          {project.techStack.length > MAX_VISIBLE_TECHS && (
+            <span className="inline-flex items-center h-7 px-2.5 text-[12px] font-sans text-foreground/50">
+              +{project.techStack.length - MAX_VISIBLE_TECHS}
+            </span>
+          )}
         </div>
       </div>
     </Link>

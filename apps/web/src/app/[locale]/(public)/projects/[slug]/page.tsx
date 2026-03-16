@@ -52,13 +52,14 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
 
         {/* Banner */}
         {project.bannerImage && (
-          <div className="relative w-full aspect-video max-h-[420px] overflow-hidden rounded-2xl border border-brand/15 mb-10">
+          <div className="mb-10 mx-auto max-w-2xl overflow-hidden rounded-2xl border border-brand/15">
             <Image
               src={project.bannerImage}
               alt={project.title}
-              fill
+              width={1280}
+              height={720}
               sizes="(max-width: 1200px) 100vw, 1200px"
-              className="object-cover"
+              className="w-full h-auto"
               priority
             />
           </div>
