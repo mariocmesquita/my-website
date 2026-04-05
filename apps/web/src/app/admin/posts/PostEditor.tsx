@@ -534,7 +534,9 @@ export function PostEditor({ postId }: PostEditorProps) {
         }}
         onDismiss={() => {
           setShowLocaleDialog(false);
-          router.push('/admin/posts');
+          if (createdPostId) {
+            router.push(`/admin/posts/${createdPostId}/edit`);
+          }
         }}
       />
     </>

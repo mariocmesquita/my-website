@@ -1,7 +1,6 @@
 import { format } from 'date-fns';
 import { enUS, ptBR } from 'date-fns/locale';
 import { ChevronLeft } from 'lucide-react';
-import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 
@@ -13,6 +12,7 @@ import { Link } from '@/i18n/navigation';
 import { getPostDetail } from '@/server/post';
 import { getPublishedProjects } from '@/server/project';
 
+import { ClickableBannerImage } from './ClickableBannerImage';
 import { PostContent } from './PostContent';
 import { RelatedProjects } from './RelatedProjects';
 
@@ -45,7 +45,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
         <Navbar />
       </div>
 
-      <div className="mx-auto max-w-[1200px] px-5 md:px-8 lg:px-6 pb-20">
+      <div className="mx-auto max-w-[728px] px-5 md:px-6 pb-20">
         <div className="hidden lg:block">
           <Navbar />
         </div>
@@ -62,16 +62,8 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
 
         {/* Banner */}
         {post.bannerImage && (
-          <div className="mb-10 mx-auto max-w-2xl overflow-hidden rounded-2xl border border-brand/15">
-            <Image
-              src={post.bannerImage}
-              alt={post.title}
-              width={1280}
-              height={720}
-              sizes="(max-width: 1200px) 100vw, 1200px"
-              className="w-full h-auto"
-              priority
-            />
+          <div className="mb-10 overflow-hidden rounded-2xl border border-brand/15">
+            <ClickableBannerImage src={post.bannerImage} alt={post.title} />
           </div>
         )}
 
